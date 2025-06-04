@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grupos', function (Blueprint $table) {
-            $table->id();
+            $table->id('ID_Grupo');
+            $table->string('NombreGrupo', 20);
+            $table->unsignedBigInteger('ID_Maestro');
+            $table->unsignedBigInteger('ID_Semestre');
             $table->timestamps();
+$table->integer('Status')->default(1);
+            $table->foreign('ID_Maestro')->references('ID_Maestro')->on('maestros');
+            $table->foreign('ID_Semestre')->references('ID_Semestre')->on('semestres');
         });
     }
 

@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('semestres', function (Blueprint $table) {
-            $table->id();
+            $table->id('ID_Semestre');
+            $table->string('Semestre', 30);
             $table->timestamps();
+            $table->integer('Status')->default(1);
         });
     }
 
