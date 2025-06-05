@@ -17,10 +17,24 @@ return new class extends Migration
             $table->string('ApePaterno', 50);
             $table->string('ApeMaestro', 50);
             $table->string('Especialidad', 60);
+            $table->string('Firma', 200)->nullable();
+            $table->date('FechaNac')->nullable();
+            $table->enum('Sexo', ['Masculino', 'Femenino'])->nullable();
+            $table->string('Direccion', 100)->nullable();
+            $table->string('NumeroExterior', 10)->nullable();
+            $table->string('NumeroInterior', 10)->nullable();
+            $table->string('CodigoPostal', 10)->nullable();
+            $table->string('Pais', 50)->nullable();
+            $table->string('Telefono', 15)->nullable();
+            $table->string('CedulaProfesional', 20)->nullable();
+            $table->unsignedBigInteger('ID_Estado')->nullable();
+            $table->unsignedBigInteger('ID_Municipio')->nullable();
             $table->unsignedBigInteger('ID_Usuario');
-            $table->timestamps();
             $table->integer('Status')->default(1);
-            $table->foreign('ID_Usuario')->references('ID_Usuario')->on('usuarios');
+            $table->timestamps();
+            $table->foreign('ID_Usuario')->references('ID_Usuario')->on('usuarios')->onDelete('cascade');
+            $table->foreign('ID_Municipio')->references('ID_Municipio')->on('municipios')->onDelete('cascade');
+            $table->foreign('ID_Estado')->references('ID_Estado')->on('estados')->onDelete('cascade');
         });
     }
 

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('usuarios', function (Blueprint $table) {
-            $table->id('ID_Usuario');
-            $table->string('Correo')->unique();
-            $table->string('Contrasena', 999);
-            $table->enum('Rol', ['Alumno', 'Maestro', 'Administrativo'])->default('Alumno');
+        Schema::create('estados', function (Blueprint $table) {
+            $table->id('ID_Estado');
+            $table->string('NombreEstado', 50);
             $table->integer('Status')->default(1);
             $table->timestamps();
         });
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuarios');
+        Schema::dropIfExists('estados');
     }
 };

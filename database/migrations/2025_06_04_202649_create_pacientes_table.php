@@ -17,20 +17,20 @@ return new class extends Migration
             $table->string('ApePaterno', 50);
             $table->string('ApeMaterno', 50);
             $table->date('FechaNac');
-            $table->string('Sexo', 1);
-            $table->string('Direccion', 200);
-            $table->string('NumeroExterior');
-            $table->string('NumeroInterior')->nullable();
-            $table->string('CodigoPostal', 5);
+            $table->enum('Sexo', ['Masculino', 'Femenino'])->nullable();
+            $table->string('Direccion', 100)->nullable();
+            $table->string('NumeroExterior', 10)->nullable();
+            $table->string('NumeroInterior', 10)->nullable();
+            $table->string('CodigoPostal', 10)->nullable();
             $table->string('Pais', 100);
-            $table->unsignedBigInteger('ID_Estado');
-            $table->unsignedBigInteger('ID_Municipio');
-            $table->unsignedBigInteger('ID_Asignacion');
             $table->string('TipoPaciente', 15);
             $table->string('Foto_Paciente', 255);
-            $table->timestamps();
+            $table->unsignedBigInteger('ID_Estado');
+            $table->unsignedBigInteger('ID_Municipio');
             $table->integer('Status')->default(1);
-            $table->foreign('ID_Asignacion')->references('ID_Asignacion')->on('asignacion_pacientes_alumnos');
+            $table->timestamps();
+            $table->foreign('ID_Estado')->references('ID_Estado')->on('estados')->onDelete('cascade');
+            $table->foreign('ID_Municipio')->references('ID_Municipio')->on('municipios')->onDelete('cascade');
         });
     }
 

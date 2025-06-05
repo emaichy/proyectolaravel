@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('NombreGrupo', 20);
             $table->unsignedBigInteger('ID_Maestro');
             $table->unsignedBigInteger('ID_Semestre');
+            $table->integer('Status')->default(1);
             $table->timestamps();
-$table->integer('Status')->default(1);
-            $table->foreign('ID_Maestro')->references('ID_Maestro')->on('maestros');
-            $table->foreign('ID_Semestre')->references('ID_Semestre')->on('semestres');
+            $table->foreign('ID_Maestro')->references('ID_Maestro')->on('maestros')->onDelete('cascade');
+            $table->foreign('ID_Semestre')->references('ID_Semestre')->on('semestres')->onDelete('cascade');
         });
     }
 

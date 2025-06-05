@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asignacion_pacientes_alumnos', function (Blueprint $table) {
-            $table->id('ID_Asignacion');
-            $table->unsignedBigInteger('ID_Alumno');
+        Schema::create('telefonos_pacientes', function (Blueprint $table) {
+            $table->id('ID_TelefonoPaciente');
+            $table->string('Telefono', 10);
+            $table->enum('Tipo', ['Casa', 'Celular', 'Trabajo'])->default('Casa');
             $table->unsignedBigInteger('ID_Paciente');
             $table->integer('Status')->default(1);
             $table->timestamps();
-            $table->foreign('ID_Alumno')->references('Matricula')->on('alumnos')->onDelete('cascade');
             $table->foreign('ID_Paciente')->references('ID_Paciente')->on('pacientes')->onDelete('cascade');
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('asignacion_pacientes_alumnos');
+        Schema::dropIfExists('telefonos_pacientes');
     }
 };
