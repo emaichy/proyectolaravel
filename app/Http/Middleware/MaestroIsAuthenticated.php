@@ -19,10 +19,10 @@ class MaestroIsAuthenticated
         if(!Auth::check()) {
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para acceder a esta página.');
         }
-        if(Auth::user()->role !== 'Maestro') {
-            if(Auth::user()->role === 'Alumno') {
+        if(Auth::user()->Rol !== 'Maestro') {
+            if(Auth::user()->Rol === 'Alumno') {
                 return redirect()->route('alumno.home')->with('error', 'No tienes permisos para acceder a esta página.');
-            } elseif(Auth::user()->role === 'Administrativo') {
+            } elseif(Auth::user()->Rol === 'Administrativo') {
                 return redirect()->route('admin.home')->with('error', 'No tienes permisos para acceder a esta página.');
             }
             // Si el usuario no es Maestro, Alumno o Administrativo, redirigir a la página de inicio del Maestro

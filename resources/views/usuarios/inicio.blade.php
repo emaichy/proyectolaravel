@@ -12,6 +12,7 @@
                 <th>ID</th>
                 <th>Correo</th>
                 <th>Contraseña</th>
+                <th>Rol</th>
                 <th>Fecha de Registro</th>
                 <th>Acciones</th>
             </tr>
@@ -21,7 +22,8 @@
                 <tr>
                     <td>{{ $usuario->ID_Usuario }}</td>
                     <td>{{ $usuario->Correo }}</td>
-                    <td>{{ $usuario->Contrasena }}</td>
+                    <td>{{ $usuario->password }}</td>
+                    <td>{{ $usuario->Rol ?? 'No asignado' }}</td>
                     <td>{{ $usuario->created_at->format('d/m/Y') }}</td>
                     <td>
                         <a href="{{ route('usuarios.show', $usuario->ID_Usuario) }}" class="btn btn-info btn-sm">Ver</a>

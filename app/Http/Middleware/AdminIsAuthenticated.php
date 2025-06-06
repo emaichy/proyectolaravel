@@ -19,10 +19,10 @@ class AdminIsAuthenticated
         if(!Auth::check()) {
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para acceder a esta página.');
         }
-        if(Auth::user()->role !== 'Administrativo') {
-            if(Auth::user()->role === 'Maestro') {
+        if(Auth::user()->Rol !== 'Administrativo') {
+            if(Auth::user()->Rol === 'Maestro') {
                 return redirect()->route('maestro.home')->with('error', 'No tienes permisos para acceder a esta página.');
-            } elseif(Auth::user()->role === 'Alumno') {
+            } elseif(Auth::user()->Rol === 'Alumno') {
                 return redirect()->route('alumno.home')->with('error', 'No tienes permisos para acceder a esta página.');
             }
             // Si el usuario no es Administrativo, Maestro o Alumno, redirigir a la página de inicio del Administrativo

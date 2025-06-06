@@ -26,7 +26,7 @@ class UsuariosController extends Controller
     {
         $usuario= new Usuarios();
         $usuario->Correo = $request->Correo;
-        $usuario->Contrasena = Hash::make($request->Contrasena);
+        $usuario->password = Hash::make($request->password);
         $usuario->save();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado exitosamente!');
@@ -55,8 +55,8 @@ class UsuariosController extends Controller
             return redirect()->route('usuarios.index')->with('error', 'Usuario no encontrado.');    
         }
         $usuario->Correo = $request->Correo;
-        if ($request->has('Contrasena') && $request->Contrasena != '') {
-            $usuario->Contrasena = Hash::make($request->Contrasena);
+        if ($request->has('password') && $request->password != '') {
+            $usuario->password = Hash::make($request->password);
         }
         $usuario->Rol = $request->Rol;
         $usuario->save();

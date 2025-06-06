@@ -16,7 +16,7 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Contraseña</label>
-            <input type="password" name="Contrasena" class="form-control" id="password" value="{{ old('Contrasena', $usuario->Contrasena) }}" required>
+            <input type="password" name="Contrasena" class="form-control" id="password" value="{{ old('password', $usuario->password) }}" required>
         </div>
 
         <div class="mb-3">
