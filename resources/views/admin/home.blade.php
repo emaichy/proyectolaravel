@@ -22,7 +22,7 @@
                     <i class="fas fa-users fa-3x mb-3 text-primary"></i>
                     <h5 class="card-title">Usuarios</h5>
                     <p class="card-text">Administre los usuarios del sistema, cree, edite o elimine cuentas.</p>
-                    <a href="" class="btn btn-primary">Gestionar Usuarios</a>
+                    <a href="/usuarios" class="btn btn-primary">Gestionar Usuarios</a>
                 </div>
             </div>
         </div>

@@ -8,6 +8,27 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+
+    public function redirect()
+{
+    if (!auth()->check()) {
+        return view('auth.login');
+    }
+
+    $user = auth()->user();
+    switch ($user->Rol) {
+        case 'Admininistrativo':
+            return redirect()->route('admin.home');
+        case 'Maestro':
+            return redirect()->route('maestro.home');
+        case 'Alumno':
+            return redirect()->route('alumno.home');
+        default:
+            auth()->logout();
+            return view('auth.login')->with('error', 'Rol no reconocido');
+    }
+}
+
     public function showLoginForm()
     {
         return view('auth.login');
