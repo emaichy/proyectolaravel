@@ -3,10 +3,12 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\MunicipiosController;
+use App\Http\Controllers\PacientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
 use App\Http\Middleware\AlumnoIsAuthenticated;
 use App\Http\Middleware\MaestroIsAuthenticated;
+use App\Models\Municipios;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,6 +58,18 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::put('/edit/{municipio}', [MunicipiosController::class, 'update'])->name('municipios.update');
         Route::get('/{municipio}', [MunicipiosController::class, 'show'])->name('municipios.show');
         Route::delete('/delete/{id}', [MunicipiosController::class, 'destroy'])->name('municipios.destroy');
+    });
+
+    Route::get('/municipiosEstado/{estado}', [MunicipiosController::class, 'getMunicipiosByEstado']);
+
+    Route::prefix('pacientes')->group(function () {
+        Route::get('/', [PacientesController::class, 'index'])->name('pacientes.index');
+        Route::get('/create', [PacientesController::class, 'create'])->name('pacientes.create');
+        Route::post('/create', [PacientesController::class, 'store'])->name('pacientes.store');
+        Route::get('/edit/{paciente}', [PacientesController::class, 'edit'])->name('pacientes.edit');
+        Route::put('/edit/{paciente}', [PacientesController::class, 'update'])->name('pacientes.update');
+        Route::get('/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
+        Route::delete('/delete/{id}', [PacientesController::class, 'destroy'])->name('pacientes.destroy');
     });
 });
 

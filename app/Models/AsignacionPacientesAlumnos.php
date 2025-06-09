@@ -20,7 +20,7 @@ class AsignacionPacientesAlumnos extends Model
 
     public function paciente()
     {
-        return $this->hasOne(Pacientes::class, 'ID_Asignacion');
+        return $this->belongsTo(Pacientes::class, 'ID_Paciente');
     }
 }
 

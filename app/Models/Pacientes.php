@@ -14,13 +14,13 @@ class Pacientes extends Model
     protected $fillable = [
         'Nombre', 'ApePaterno', 'ApeMaterno', 'FechaNac', 'Sexo', 'Direccion',
         'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais',
-        'TipoPaciente', 'Foto_Paciente', 'ID_Estado', 'ID_Municipio', 'ID_Asignacion', 'Status'
+        'TipoPaciente', 'Foto_Paciente', 'ID_Estado', 'ID_Municipio', 'Status'
     ];
     public $timestamps = true;
 
     public function asignacion()
     {
-        return $this->belongsTo(AsignacionPacientesAlumnos::class, 'ID_Asignacion');
+        return $this->hasOne(AsignacionPacientesAlumnos::class, 'ID_Paciente');
     }
 
     public function estado()

@@ -9,7 +9,7 @@ class MunicipiosController extends Controller
 {
     public function index()
     {
-        $municipios=Municipios::with('estado')
+        $municipios = Municipios::with('estado')
             ->where('Status', 1)
             ->orderBy('NombreMunicipio', 'asc')
             ->paginate(10);
@@ -28,7 +28,7 @@ class MunicipiosController extends Controller
 
     public function store(Request $request)
     {
-        $municipio=new Municipios();
+        $municipio = new Municipios();
         $municipio->NombreMunicipio = $request->NombreMunicipio;
         $municipio->ID_Estado = $request->ID_Estado;
         $municipio->save();
@@ -65,5 +65,11 @@ class MunicipiosController extends Controller
         }
         $municipio->update(['Status' => 0]);
         return redirect()->route('municipios.index')->with('success', 'Municipio eliminado exitosamente.');
+    }
+
+    public function getMunicipiosByEstado($estadoId)
+    {
+        $municipios = Municipios::where('ID_Estado', $estadoId)->get();
+        return response()->json($municipios);
     }
 }
