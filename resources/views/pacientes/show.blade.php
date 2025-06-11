@@ -26,6 +26,18 @@
                         <p class="mb-1"><strong>Dirección:</strong>
                             {{ $paciente->Direccion . ' ' . $paciente->NumeroExterior . ', ' . $paciente->NumeroInterior . ', ' . $paciente->municipio->NombreMunicipio . ', ' . $paciente->estado->NombreEstado }}
                         </p>
+                        <p class="mb-1"><strong>Teléfono Celular:</strong>
+                            <span id="telefonoCelular">Cargando...</span>
+                            <span id="celularActions"></span>
+                        </p>
+                        <p class="mb-1"><strong>Teléfono Casa:</strong>
+                            <span id="telefonoCasa">Cargando...</span>
+                            <span id="casaActions"></span>
+                        </p>
+                        <p class="mb-1"><strong>Teléfono Trabajo:</strong>
+                            <span id="telefonoTrabajo">Cargando...</span>
+                            <span id="trabajoActions"></span>
+                        </p>
                     </div>
                 </div>
                 <hr>
@@ -40,17 +52,203 @@
                         <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-warning me-2">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>
-                        <form action="{{ route('pacientes.destroy', $paciente) }}" method="POST" class="d-inline"
-                            onsubmit="return confirm('¿Estás seguro de eliminar este paciente?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-danger" id="deletePacienteBtn"
+                            data-id="{{ $paciente->ID_Paciente }}" data-url="{{ route('pacientes.destroy', $paciente) }}">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="telefonoModal" tabindex="-1" aria-labelledby="telefonoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="telefonoModalLabel">Agregar Teléfono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="telefonoForm" method="POST">
+                    @csrf
+                    <input type="hidden" name="ID_Paciente" value="{{ $paciente->ID_Paciente }}">
+                    <input type="hidden" name="_method" id="formMethod" value="POST">
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Número de Teléfono</label>
+                            <input type="tel" name="telefono" id="telefono" class="form-control" pattern="[0-9]{10}"
+                                title="Ingrese un número de teléfono válido (10 dígitos)" required
+                                placeholder="Ej: 22112233">
+                            <div class="invalid-feedback">
+                                Por favor ingrese un número de teléfono válido (10 dígitos).
+                            </div>
+                        </div>
+                        <input type="hidden" name="tipo" id="tipo" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación de teléfono -->
+    <div class="modal fade" id="confirmDeleteTelefonoModal" tabindex="-1" aria-labelledby="confirmDeleteTelefonoLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación de Teléfono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar este teléfono?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteTelefono">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            const pacienteId = {{ $paciente->ID_Paciente }};
+            const modal = new bootstrap.Modal(document.getElementById('telefonoModal'));
+            const deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteTelefonoModal'));
+
+            function formatTelefonos(telefonos) {
+                return telefonos.length ? telefonos.map(t => t.Telefono).join(', ') : 'No registrado';
+            }
+
+            function renderActionButtons(tipo, telefonos) {
+                const containerId = `${tipo.toLowerCase()}Actions`;
+                const container = $(`#${containerId}`);
+                container.empty();
+                if (telefonos.length > 0) {
+                    telefonos.forEach(telefono => {
+                        const btnGroup = $(`
+                <div class="btn-group ms-2" role="group">
+                    <button class="btn btn-sm btn-outline-primary edit-btn" 
+                        data-id="${telefono.ID_TelefonoPaciente}" 
+                        data-telefono="${telefono.Telefono}" 
+                        data-tipo="${telefono.Tipo}">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" 
+                        data-id="${telefono.ID_TelefonoPaciente}">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            `);
+                        container.append(btnGroup);
+                    });
+                } else {
+                    const addBtn = $(`
+            <button class="btn btn-sm btn-success ms-2 add-btn" data-tipo="${tipo}">
+                <i class="bi bi-plus"></i> Agregar
+            </button>
+        `);
+                    container.append(addBtn);
+                }
+            }
+
+            function loadTelefonos() {
+                $.get(`/telefonos/getAllByPaciente/${pacienteId}`, function(data) {
+                    const celularData = data?.Celular || [];
+                    const casaData = data?.Casa || [];
+                    const trabajoData = data?.Trabajo || [];
+                    $('#telefonoCelular').text(formatTelefonos(celularData));
+                    $('#telefonoCasa').text(formatTelefonos(casaData));
+                    $('#telefonoTrabajo').text(formatTelefonos(trabajoData));
+                    renderActionButtons('Celular', celularData);
+                    renderActionButtons('Casa', casaData);
+                    renderActionButtons('Trabajo', trabajoData);
+                    $('.add-btn').off().click(function() {
+                        const tipo = $(this).data('tipo');
+                        $('#telefonoForm').attr('action', '/telefonos/create');
+                        $('#formMethod').val('POST');
+                        $('#telefono').val('');
+                        $('#tipo').val(tipo);
+                        $('#telefonoModalLabel').text(`Agregar Teléfono ${tipo}`);
+                        modal.show();
+                    });
+
+                    $('.edit-btn').off().click(function() {
+                        const id = $(this).data('id');
+                        const telefono = $(this).data('telefono');
+                        const tipo = $(this).data('tipo');
+                        $('#telefonoForm').attr('action', `/telefonos/edit/${id}`);
+                        $('#formMethod').val('PUT');
+                        $('#telefono').val(telefono);
+                        $('#tipo').val(tipo);
+                        $('#telefonoModalLabel').text(`Editar Teléfono ${tipo}`);
+                        modal.show();
+                    });
+
+                    $('.delete-btn').off().click(function() {
+                        const id = $(this).data('id');
+                        $('#deleteForm').attr('action', `/telefonos/delete/${id}`);
+                        deleteModal.show();
+                    });
+                }).fail(function() {
+                    $('#telefonoCelular, #telefonoCasa, #telefonoTrabajo').text(
+                        'Error al cargar teléfonos');
+                });
+            }
+            $('#telefonoForm').submit(function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const url = form.attr('action');
+                const method = $('#formMethod').val();
+
+                $.ajax({
+                    url: url,
+                    method: method === 'POST' ? 'POST' : 'PUT',
+                    data: form.serialize(),
+                    success: function() {
+                        modal.hide();
+                        loadTelefonos();
+                    },
+                    error: function() {
+                        alert('Error al guardar teléfono');
+                    }
+                });
+            });
+            loadTelefonos();
+            let telefonoDeleteUrl = '';
+
+            $(document).on('click', '.delete-btn', function() {
+                const id = $(this).data('id');
+                telefonoDeleteUrl = `/telefonos/delete/${id}`;
+                deleteModal.show();
+            });
+
+            $('#confirmDeleteTelefono').click(function() {
+                $.ajax({
+                    url: telefonoDeleteUrl,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function() {
+                        deleteModal.hide();
+                        loadTelefonos();
+                    },
+                    error: function() {
+                        alert('Error al eliminar el teléfono');
+                    }
+                });
+            });
+
+        });
+    </script>
 @endsection

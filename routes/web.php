@@ -4,11 +4,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
+use App\Http\Controllers\TelefonosPacientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
 use App\Http\Middleware\AlumnoIsAuthenticated;
 use App\Http\Middleware\MaestroIsAuthenticated;
-use App\Models\Municipios;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -71,6 +71,18 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
         Route::delete('/delete/{id}', [PacientesController::class, 'destroy'])->name('pacientes.destroy');
     });
+
+    Route::prefix('telefonos')->group(function () {
+        Route::get('/', [TelefonosPacientesController::class, 'index'])->name('telefonos.index');
+        Route::get('/create/{ID_Paciente}', [TelefonosPacientesController::class, 'create'])->name('telefonos.create');
+        Route::post('/create', [TelefonosPacientesController::class, 'store'])->name('telefonos.store');
+        Route::get('/edit/{telefono}', [TelefonosPacientesController::class, 'edit'])->name('telefonos.edit');
+        Route::put('/edit/{telefono}', [TelefonosPacientesController::class, 'update'])->name('telefonos.update');
+        Route::get('/{telefono}', [TelefonosPacientesController::class, 'show'])->name('telefonos.show');
+        Route::delete('/delete/{id}', [TelefonosPacientesController::class, 'destroy'])->name('telefonos.destroy');
+    });
+
+    Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
 });
 
 Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
