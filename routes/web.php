@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
@@ -80,6 +81,16 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::put('/edit/{telefono}', [TelefonosPacientesController::class, 'update'])->name('telefonos.update');
         Route::get('/{telefono}', [TelefonosPacientesController::class, 'show'])->name('telefonos.show');
         Route::delete('/delete/{id}', [TelefonosPacientesController::class, 'destroy'])->name('telefonos.destroy');
+    });
+
+    Route::prefix('documentos')->group(function () {
+        Route::get('/', [DocumentosPacientesController::class, 'index'])->name('documentos.index');
+        Route::get('/create/{ID_Paciente}', [DocumentosPacientesController::class, 'create'])->name('documentos.create');
+        Route::post('/store', [DocumentosPacientesController::class, 'store'])->name('documentos.store');
+        Route::post('/update/{id}', [DocumentosPacientesController::class, 'update'])->name('documentos.update');
+        Route::delete('/delete/{id}', [DocumentosPacientesController::class, 'destroy'])->name('documentos.destroy');
+        Route::get('/paciente/{id}', [DocumentosPacientesController::class, 'showByPacient'])->name('documentos.byPaciente');
+        Route::get('/download/{id}', [DocumentosPacientesController::class, 'download'])->name('documentos.download');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);

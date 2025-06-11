@@ -49,6 +49,12 @@
                         <a href="#" class="btn btn-info me-2">
                             <i class="bi bi-pencil-square me-1"></i> Ver Historial Clínico
                         </a>
+                        <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}" class="btn btn-success me-2">
+                            <i class="bi bi-plus-square"></i> Ver Documentos Adjuntos
+                        </a>
+                        <a href="{{ route('pacientes.create') }}" class="btn btn-success me-2">
+                            <i class="bi bi-plus-square"></i> Ver Radiografías
+                        </a>
                         <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-warning me-2">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>
@@ -94,8 +100,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal para confirmar eliminación de teléfono -->
     <div class="modal fade" id="confirmDeleteTelefonoModal" tabindex="-1" aria-labelledby="confirmDeleteTelefonoLabel"
         aria-hidden="true">
         <div class="modal-dialog">
