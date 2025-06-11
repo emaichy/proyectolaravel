@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('municipios', function (Blueprint $table) {
             $table->id('ID_Municipio');
-            $table->string('NombreMunicipio', 50);
+            $table->string('NombreMunicipio', 100);
             $table->unsignedBigInteger('ID_Estado');
             $table->integer('Status')->default(1);
             $table->foreign('ID_Estado')->references('ID_Estado')->on('estados')->onDelete('cascade');

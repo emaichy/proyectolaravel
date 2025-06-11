@@ -10,7 +10,7 @@ class RadiografiasPacientes extends Model
     use HasFactory;
     protected $table = 'radiografias_pacientes';
     protected $primaryKey = 'ID_Radiografia';
-    protected $fillable = ['RutaArchivo', 'Descripcion', 'ID_Paciente', 'Status'];
+    protected $fillable = ['RutaArchivo', 'Tipo', 'ID_Paciente', 'Status'];
     public $timestamps = true;
     public function paciente()
     {

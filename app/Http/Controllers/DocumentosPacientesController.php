@@ -9,22 +9,22 @@ use Illuminate\Http\Request;
 class DocumentosPacientesController extends Controller
 {
     public function index()
-{
-    $query = DocumentosPacientes::query()->where('Status', 1);
+    {
+        $query = DocumentosPacientes::query()->where('Status', 1);
 
-    if (request()->filled('tipo')) {
-        $query->where('Tipo', request('tipo'));
+        if (request()->filled('tipo')) {
+            $query->where('Tipo', request('tipo'));
+        }
+
+        if (request()->filled('paciente_id')) {
+            $query->where('ID_Paciente', request('paciente_id'));
+        }
+
+        $documentos = $query->with('paciente')->paginate(12);
+        $pacientes = Pacientes::where('Status', 1)->get();
+
+        return view('docs.index', compact('documentos', 'pacientes'));
     }
-
-    if (request()->filled('paciente_id')) {
-        $query->where('ID_Paciente', request('paciente_id'));
-    }
-
-    $documentos = $query->with('paciente')->paginate(12);
-    $pacientes = Pacientes::where('Status', 1)->get();
-
-    return view('docs.index', compact('documentos', 'pacientes'));
-}
 
 
     public function showByPacient($id)

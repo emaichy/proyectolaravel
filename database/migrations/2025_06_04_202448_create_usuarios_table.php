@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id('ID_Usuario');
             $table->string('Correo')->unique();
-            $table->string('Contrasena', 999);
+            $table->string('password', 999);
             $table->enum('Rol', ['Alumno', 'Maestro', 'Administrativo'])->default('Alumno');
             $table->integer('Status')->default(1);
             $table->timestamps();

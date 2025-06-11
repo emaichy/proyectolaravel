@@ -21,7 +21,7 @@
                         <h3 class="fw-bold">{{ $paciente->Nombre }} {{ $paciente->ApePaterno }} {{ $paciente->ApeMaterno }}
                         </h3>
                         <p class="mb-1"><strong>Fecha de nacimiento:</strong>
-                            {{ \Carbon\Carbon::parse($paciente->fecha_nacimiento)->format('d/m/Y') }}</p>
+                            {{ \Carbon\Carbon::parse($paciente->FechaNac)->format('d/m/Y') }}</p>
                         <p class="mb-1"><strong>Género:</strong> {{ $paciente->Sexo }}</p>
                         <p class="mb-1"><strong>Dirección:</strong>
                             {{ $paciente->Direccion . ' ' . $paciente->NumeroExterior . ', ' . $paciente->NumeroInterior . ', ' . $paciente->municipio->NombreMunicipio . ', ' . $paciente->estado->NombreEstado }}
@@ -52,7 +52,8 @@
                         <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}" class="btn btn-success me-2">
                             <i class="bi bi-plus-square"></i> Ver Documentos Adjuntos
                         </a>
-                        <a href="{{ route('pacientes.create') }}" class="btn btn-success me-2">
+                        <a href="{{ route('radiografias.byPaciente', $paciente->ID_Paciente) }}"
+                            class="btn btn-success me-2">
                             <i class="bi bi-plus-square"></i> Ver Radiografías
                         </a>
                         <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-warning me-2">
@@ -100,25 +101,6 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="confirmDeleteTelefonoModal" tabindex="-1" aria-labelledby="confirmDeleteTelefonoLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Eliminación de Teléfono</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar este teléfono?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteTelefono">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
 @endsection
 
@@ -127,7 +109,6 @@
         $(document).ready(function() {
             const pacienteId = {{ $paciente->ID_Paciente }};
             const modal = new bootstrap.Modal(document.getElementById('telefonoModal'));
-            const deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteTelefonoModal'));
 
             function formatTelefonos(telefonos) {
                 return telefonos.length ? telefonos.map(t => t.Telefono).join(', ') : 'No registrado';
@@ -185,7 +166,6 @@
                         $('#telefonoModalLabel').text(`Agregar Teléfono ${tipo}`);
                         modal.show();
                     });
-
                     $('.edit-btn').off().click(function() {
                         const id = $(this).data('id');
                         const telefono = $(this).data('telefono');
@@ -197,12 +177,48 @@
                         $('#telefonoModalLabel').text(`Editar Teléfono ${tipo}`);
                         modal.show();
                     });
-
                     $('.delete-btn').off().click(function() {
                         const id = $(this).data('id');
-                        $('#deleteForm').attr('action', `/telefonos/delete/${id}`);
-                        deleteModal.show();
+                        Swal.fire({
+                            title: '¿Estás seguro?',
+                            text: 'Este teléfono se eliminará permanentemente.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: `/telefonos/delete/${id}`,
+                                    type: 'DELETE',
+                                    data: {
+                                        _token: '{{ csrf_token() }}'
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Eliminado',
+                                            text: 'Teléfono eliminado con éxito.',
+                                            timer: 1500,
+                                            showConfirmButton: false
+                                        });
+                                        loadTelefonos();
+                                    },
+                                    error: function(xhr) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'No se pudo eliminar el teléfono. Intenta nuevamente.'
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
                     });
+
                 }).fail(function() {
                     $('#telefonoCelular, #telefonoCasa, #telefonoTrabajo').text(
                         'Error al cargar teléfonos');
@@ -221,10 +237,21 @@
                     success: function() {
                         modal.hide();
                         loadTelefonos();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Teléfono guardado!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     },
                     error: function() {
-                        alert('Error al guardar teléfono');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo guardar el teléfono. Intenta nuevamente.'
+                        });
                     }
+
                 });
             });
             loadTelefonos();

@@ -10,7 +10,7 @@ class FotografiasPacientes extends Model
     use HasFactory;
     protected $table = 'fotografias_pacientes';
     protected $primaryKey = 'ID_Fotografia';
-    protected $fillable = ['RutaArchivo', 'Descripcion', 'Tipo', 'ID_Paciente', 'Status'];
+    protected $fillable = ['RutaArchivo', 'Tipo', 'ID_Paciente', 'Status'];
     public $timestamps = true;
 
     public function paciente()

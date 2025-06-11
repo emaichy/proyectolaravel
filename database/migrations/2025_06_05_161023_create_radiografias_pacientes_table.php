@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('radiografias_pacientes', function (Blueprint $table) {
             $table->id('ID_Radiografia');
             $table->string('RutaArchivo', 255)->nullable();
-            $table->string('Descripcion', 255)->nullable();
+            $table->enum('Tipo', ['Panorámica', 'Periapical', 'Oclusal', 'Otro'])->default('Otro');
             $table->unsignedBigInteger('ID_Paciente');
             $table->integer('Status')->default(1);
             $table->timestamps();

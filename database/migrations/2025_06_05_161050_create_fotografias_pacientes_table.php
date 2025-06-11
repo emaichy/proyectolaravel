@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('fotografias_pacientes', function (Blueprint $table) {
             $table->id('ID_Fotografia');
             $table->string('RutaArchivo', 255)->nullable();
-            $table->string('Descripcion', 255)->nullable();
             $table->enum('Tipo', ['Centro', 'Perfil Izquierdo', 'Perfil Derecho', 'Otro'])->default('Otro');
             $table->unsignedBigInteger('ID_Paciente');
             $table->integer('Status')->default(1);

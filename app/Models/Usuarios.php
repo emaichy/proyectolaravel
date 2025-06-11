@@ -13,7 +13,7 @@ class Usuarios extends Authenticatable
 
     protected $table = 'usuarios';
     protected $primaryKey = 'ID_Usuario';
-    protected $fillable = ['Correo', 'Contrasena', 'Rol', 'Status'];
+    protected $fillable = ['Correo', 'password', 'Rol', 'Status'];
     public $timestamps = true;
     public function administradores()
     {

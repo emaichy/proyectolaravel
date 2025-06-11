@@ -5,6 +5,7 @@ use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
+use App\Http\Controllers\RadiografiasPacientesController;
 use App\Http\Controllers\TelefonosPacientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
@@ -32,8 +33,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuariosController::class, 'index'])->name('usuarios.index');
-        Route::get('/create', [UsuariosController::class, 'create'])->name('usuarios.create');
-        Route::post('/create', [UsuariosController::class, 'store'])->name('usuarios.store');
         Route::get('/edit/{usuario}', [UsuariosController::class, 'edit'])->name('usuarios.edit');
         Route::put('/edit/{usuario}', [UsuariosController::class, 'update'])->name('usuarios.update');
         Route::get('/{usuario}', [UsuariosController::class, 'show'])->name('usuarios.show');
@@ -93,8 +92,20 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/download/{id}', [DocumentosPacientesController::class, 'download'])->name('documentos.download');
     });
 
+    Route::prefix('radiografias')->group(function () {
+        Route::get('/', [RadiografiasPacientesController::class, 'index'])->name('radiografias.index');
+        Route::post('/store', [RadiografiasPacientesController::class, 'store'])->name('radiografias.store');
+        Route::post('/update/{id}', [RadiografiasPacientesController::class, 'update'])->name('radiografias.update');
+        Route::delete('/delete/{id}', [RadiografiasPacientesController::class, 'destroy'])->name('radiografias.destroy');
+        Route::get('/paciente/{id}', [RadiografiasPacientesController::class, 'showByPacient'])->name('radiografias.byPaciente');
+        Route::get('/download/{id}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
+    });
+
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
 });
+
+Route::get('/create', [UsuariosController::class, 'create'])->name('usuarios.create');
+Route::post('/create', [UsuariosController::class, 'store'])->name('usuarios.store');
 
 Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
     Route::get('/alumno', function () {
