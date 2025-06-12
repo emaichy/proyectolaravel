@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('CodigoPostal', 10)->nullable();
             $table->string('Pais', 100);
             $table->string('TipoPaciente', 15);
-            $table->string('Foto_Paciente', 255);
+            $table->string('Foto_Paciente', 255)->nullable();
             $table->unsignedBigInteger('ID_Estado');
             $table->unsignedBigInteger('ID_Municipio');
             $table->integer('Status')->default(1);

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
+use App\Http\Controllers\FotografiasPacientesController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
 use App\Http\Controllers\RadiografiasPacientesController;
@@ -98,6 +99,15 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::delete('/delete/{id}', [RadiografiasPacientesController::class, 'destroy'])->name('radiografias.destroy');
         Route::get('/paciente/{id}', [RadiografiasPacientesController::class, 'showByPacient'])->name('radiografias.byPaciente');
         Route::get('/download/{id}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
+    });
+
+    Route::prefix('fotografias')->group(function(){
+        Route::get('/', [FotografiasPacientesController::class, 'index'])->name('fotografias.index');
+        Route::post('/store', [FotografiasPacientesController::class, 'store'])->name('fotografias.store');
+        Route::post('/update/{id}', [FotografiasPacientesController::class, 'update'])->name('fotografias.update');
+        Route::delete('/delete/{id}', [FotografiasPacientesController::class, 'destroy'])->name('fotografias.destroy');
+        Route::get('/paciente/{id}', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
+        Route::get('/download/{id}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);

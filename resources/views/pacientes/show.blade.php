@@ -14,8 +14,16 @@
             <div class="card-body">
                 <div class="row mb-4">
                     <div class="col-md-4 text-center">
-                        <img src="{{ asset($paciente->Foto_Paciente) }}" alt="Foto del paciente"
-                            class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                        @php
+                            $foto =
+                                $paciente->Foto_Paciente && file_exists(public_path($paciente->Foto_Paciente))
+                                    ? asset($paciente->Foto_Paciente)
+                                    : asset('avatar.png');
+                        @endphp
+
+                        <img src="{{ $foto }}" alt="Foto del paciente" class="img-fluid rounded-circle shadow"
+                            style="width: 150px; height: 150px; object-fit: cover;">
+
                     </div>
                     <div class="col-md-8">
                         <h3 class="fw-bold">{{ $paciente->Nombre }} {{ $paciente->ApePaterno }} {{ $paciente->ApeMaterno }}
@@ -51,6 +59,10 @@
                         </a>
                         <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}" class="btn btn-success me-2">
                             <i class="bi bi-plus-square"></i> Ver Documentos Adjuntos
+                        </a>
+                        <a href="{{ route('fotografias.byPaciente', $paciente->ID_Paciente) }}"
+                            class="btn btn-success me-2">
+                            <i class="bi bi-plus-square"></i> Ver Fotografías
                         </a>
                         <a href="{{ route('radiografias.byPaciente', $paciente->ID_Paciente) }}"
                             class="btn btn-success me-2">

@@ -60,24 +60,27 @@ class PacientesController extends Controller
         $paciente->ID_Estado = $request->ID_Estado;
         $paciente->ID_Municipio = $request->ID_Municipio;
 
+        $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
+        $rutaPaciente = public_path("images/{$nombrePaciente}");
+        if (!file_exists($rutaPaciente)) {
+            mkdir($rutaPaciente, 0777, true);
+        }
+        $rutaDocs = public_path("docs/{$nombrePaciente}");
+        if (!file_exists($rutaDocs)) {
+            mkdir($rutaDocs, 0777, true);
+        }
+
         if ($request->hasFile('Foto_Paciente')) {
-            $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
-            $rutaPaciente = public_path("images/{$nombrePaciente}");
-
-            if (!file_exists($rutaPaciente)) {
-                mkdir($rutaPaciente, 0777, true);
-            }
-
             $file = $request->file('Foto_Paciente');
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $file->move($rutaPaciente, $filename);
-
             $paciente->Foto_Paciente = "images/{$nombrePaciente}/{$filename}";
         }
 
         $paciente->save();
         return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
     }
+
 
 
     public function edit($id)
@@ -136,6 +139,24 @@ class PacientesController extends Controller
         return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado correctamente.');
     }
 
+    private function eliminarDirectorioRecursivo($ruta)
+    {
+        if (!file_exists($ruta)) {
+            return;
+        }
+        if (is_file($ruta) || is_link($ruta)) {
+            unlink($ruta);
+            return;
+        }
+        $archivos = scandir($ruta);
+        foreach ($archivos as $archivo) {
+            if ($archivo === '.' || $archivo === '..') {
+                continue;
+            }
+            $this->eliminarDirectorioRecursivo($ruta . DIRECTORY_SEPARATOR . $archivo);
+        }
+        rmdir($ruta);
+    }
 
     public function destroy($id)
     {
@@ -143,8 +164,20 @@ class PacientesController extends Controller
         if (!$paciente) {
             return redirect()->route('pacientes.index')->with('error', 'Paciente no encontrado.');
         }
+
+        if ($paciente->Foto_Paciente && file_exists(public_path($paciente->Foto_Paciente))) {
+            unlink(public_path($paciente->Foto_Paciente));
+        }
+
+        $nombrePaciente = Str::slug($paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno);
+        $directorioImagenes = public_path("images/{$nombrePaciente}");
+        $this->eliminarDirectorioRecursivo($directorioImagenes);
+        $directorioDocs = public_path("docs/{$nombrePaciente}");
+        $this->eliminarDirectorioRecursivo($directorioDocs);
         $paciente->Status = 0;
+        $paciente->Foto_Paciente = null;
         $paciente->save();
+
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 }

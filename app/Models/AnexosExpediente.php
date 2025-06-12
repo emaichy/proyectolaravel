@@ -13,7 +13,6 @@ class AnexosExpediente extends Model
     protected $fillable = [
         'Nombre_Anexo',
         'Ruta_Anexo',
-        'Tipo_Anexo',
         'ID_Expediente',
         'Status'
     ];

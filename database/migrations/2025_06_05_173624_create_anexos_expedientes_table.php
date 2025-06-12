@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id('ID_AnexoExpediente');
             $table->string('Nombre_Anexo', 255);
             $table->string('Ruta_Anexo', 255);
-            $table->string('Tipo_Anexo', 100)->nullable();
             $table->unsignedBigInteger('ID_Expediente');
             $table->integer('Status')->default(1);
             $table->foreign('ID_Expediente')->references('ID_Expediente')->on('expedientes')->onDelete('cascade');
