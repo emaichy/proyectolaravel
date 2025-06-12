@@ -22,12 +22,12 @@
                     </div>
                     <div class="card-body text-center">
                         @if ($radiografia)
-                            <img src="{{ asset('radiografias/pacientes/' . $radiografia->RutaRadiografia) }}"
+                            <img src="{{ asset('images/' . $radiografia->RutaArchivo) }}"
                                 alt="{{ $tipo }}"
                                 style="max-width: 100%; max-height: 200px; border-radius: 5px; border: 1px solid #ccc;">
                             <div class="mt-3">
-                                @if (isset($radiografia->ID_RadiografiaPaciente))
-                                    <a href="{{ route('radiografias.download', $radiografia->ID_RadiografiaPaciente) }}"
+                                @if (isset($radiografia->ID_Radiografia))
+                                    <a href="{{ route('radiografias.download', $radiografia->ID_Radiografia) }}"
                                         class="btn btn-primary btn-sm">Descargar</a>
                                 @else
                                     <p class="text-danger">Radiografía no disponible</p>
@@ -46,8 +46,7 @@
                                 @csrf
                                 <input type="hidden" name="ID_Paciente" value="{{ $pacienteId }}">
                                 <input type="hidden" name="Tipo" value="{{ $tipo }}">
-                                <input type="file" name="RutaRadiografia" required class="form-control mb-2"
-                                    accept="image/*">
+                                <input type="file" name="RutaArchivo" required class="form-control mb-2" accept="image/*">
                                 <button type="submit" class="btn btn-success btn-sm">Subir {{ $tipo }}</button>
                             </form>
                         @endif
@@ -195,7 +194,7 @@
                         if (!file) return;
 
                         const uploadData = new FormData();
-                        uploadData.append('RutaRadiografia', file);
+                        uploadData.append('RutaArchivo', file);
 
                         try {
                             const response = await fetch(`/radiografias/update/${id}`, {

@@ -84,7 +84,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::prefix('documentos')->group(function () {
         Route::get('/', [DocumentosPacientesController::class, 'index'])->name('documentos.index');
-        Route::get('/create/{ID_Paciente}', [DocumentosPacientesController::class, 'create'])->name('documentos.create');
         Route::post('/store', [DocumentosPacientesController::class, 'store'])->name('documentos.store');
         Route::post('/update/{id}', [DocumentosPacientesController::class, 'update'])->name('documentos.update');
         Route::delete('/delete/{id}', [DocumentosPacientesController::class, 'destroy'])->name('documentos.destroy');

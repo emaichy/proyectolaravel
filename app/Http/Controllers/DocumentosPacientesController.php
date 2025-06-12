@@ -38,12 +38,7 @@ class DocumentosPacientesController extends Controller
             'pacienteId' => $id
         ]);
     }
-
-    public function create($ID_Paciente)
-    {
-        return view('docs.create', compact('ID_Paciente'));
-    }
-
+    
     public function store(Request $request)
     {
         try {

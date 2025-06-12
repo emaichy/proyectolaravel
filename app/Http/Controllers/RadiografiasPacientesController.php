@@ -39,31 +39,32 @@ class RadiografiasPacientesController extends Controller
             if (!$request->hasFile('RutaArchivo')) {
                 return response()->json(['message' => 'Archivo no recibido'], 400);
             }
+
             $paciente = Pacientes::find($request->ID_Paciente);
             if (!$paciente) {
                 return response()->json(['message' => 'Paciente no encontrado'], 404);
             }
+
             $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
             $carpetaPaciente = Str::slug($nombrePaciente);
-            $rutaCompleta = public_path('images/radiografias/' . $carpetaPaciente);
+            $rutaCompleta = public_path('images/' . $carpetaPaciente . '/radiografias');
+
             if (!file_exists($rutaCompleta)) {
                 mkdir($rutaCompleta, 0777, true);
             }
+
             $file = $request->file('RutaArchivo');
-            $nombreOriginal = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
-            $nombreArchivo = time() . '_' . Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) . '.' . $extension;
+            $nombreArchivo = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
             $file->move($rutaCompleta, $nombreArchivo);
 
             $radiografia = new RadiografiasPacientes();
-            $radiografia->RutaArchivo = $carpetaPaciente . '/' . $nombreArchivo;
+            $radiografia->RutaArchivo = $carpetaPaciente . '/radiografias/' . $nombreArchivo;
             $radiografia->Tipo = $request->Tipo;
             $radiografia->ID_Paciente = $request->ID_Paciente;
 
             if (!$radiografia->save()) {
-                if (file_exists($rutaCompleta . '/' . $nombreArchivo)) {
-                    unlink($rutaCompleta . '/' . $nombreArchivo);
-                }
+                unlink($rutaCompleta . '/' . $nombreArchivo);
                 return response()->json(['message' => 'Error al guardar en la base de datos'], 500);
             }
 
@@ -90,20 +91,27 @@ class RadiografiasPacientesController extends Controller
         $request->validate([
             'RutaArchivo' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);
+
         $paciente = Pacientes::find($radiografia->ID_Paciente);
         $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
         $carpetaPaciente = Str::slug($nombrePaciente);
-        $rutaCompleta = public_path('docs/' . $carpetaPaciente);
-        $rutaAnterior = public_path('docs/' . $radiografia->RutaArchivo);
+        $rutaCompleta = public_path('images/' . $carpetaPaciente . '/radiografias');
+
+        if (!file_exists($rutaCompleta)) {
+            mkdir($rutaCompleta, 0777, true);
+        }
+
+        $rutaAnterior = public_path('images/' . $radiografia->RutaArchivo);
         if (file_exists($rutaAnterior)) {
             unlink($rutaAnterior);
         }
+
         $archivo = $request->file('RutaArchivo');
-        $nombreOriginal = $archivo->getClientOriginalName();
         $extension = $archivo->getClientOriginalExtension();
-        $nuevoNombre = time() . '_' . Str::slug(pathinfo($nombreOriginal, PATHINFO_FILENAME)) . '.' . $extension;
+        $nuevoNombre = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
         $archivo->move($rutaCompleta, $nuevoNombre);
-        $radiografia->RutaArchivo = $carpetaPaciente . '/' . $nuevoNombre;
+
+        $radiografia->RutaArchivo = $carpetaPaciente . '/radiografias/' . $nuevoNombre;
         $radiografia->save();
 
         return response()->json(['message' => 'Radiografía actualizada correctamente']);
@@ -113,25 +121,26 @@ class RadiografiasPacientesController extends Controller
     {
         $radiografia = RadiografiasPacientes::findOrFail($id);
         try {
-            $radiografia = RadiografiasPacientes::findOrFail($id);
-            $rutaArchivo = public_path('images/radiografias/' . $radiografia->RutaArchivo);
+            $rutaArchivo = public_path('images/' . $radiografia->RutaArchivo);
             if (file_exists($rutaArchivo)) {
                 unlink($rutaArchivo);
             }
             $radiografia->delete();
             return response()->json(['message' => 'Radiografía eliminada exitosamente'], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al eliminar radiografía'. $e->getMessage()], 500);
+            return response()->json(['message' => 'Error al eliminar radiografía: ' . $e->getMessage()], 500);
         }
     }
 
     public function download($id)
     {
         $radiografia = RadiografiasPacientes::findOrFail($id);
-        $filePath = public_path('images/radiografias/' . $radiografia->RutaArchivo);
+        $filePath = public_path('images/' . $radiografia->RutaArchivo);
+
         if (!file_exists($filePath)) {
-            abort(404, 'Archivo no econtrado');
+            abort(404, 'Archivo no encontrado');
         }
+
         return response()->download($filePath);
     }
 }
