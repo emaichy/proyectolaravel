@@ -20,8 +20,7 @@
                     </div>
                     <div class="card-body">
                         @if ($documento)
-                            <iframe src="{{ asset('docs/pacientes/' . $documento->RutaArchivo) }}" width="100%"
-                                height="200px"></iframe>
+                            <iframe src="{{ asset('docs/' . $documento->RutaArchivo) }}" width="100%" height="200px"></iframe>
                             <div class="mt-3 text-center">
                                 @if ($documento && isset($documento->ID_DocumentoPaciente))
                                     <a href="{{ route('documentos.download', $documento->ID_DocumentoPaciente) }}"
