@@ -14,7 +14,7 @@
             <div class="card-body">
                 <div class="row mb-4">
                     <div class="col-md-4 text-center">
-                        <img src="{{ asset('images/pacientes/' . $paciente->Foto_Paciente) }}" alt="Foto del paciente"
+                        <img src="{{ asset($paciente->Foto_Paciente) }}" alt="Foto del paciente"
                             class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;">
                     </div>
                     <div class="col-md-8">

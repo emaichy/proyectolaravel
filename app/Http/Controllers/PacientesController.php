@@ -6,6 +6,7 @@ use App\Models\Estados;
 use App\Models\Pacientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PacientesController extends Controller
 {
@@ -58,15 +59,26 @@ class PacientesController extends Controller
         $paciente->TipoPaciente = $request->TipoPaciente;
         $paciente->ID_Estado = $request->ID_Estado;
         $paciente->ID_Municipio = $request->ID_Municipio;
+
         if ($request->hasFile('Foto_Paciente')) {
+            $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
+            $rutaPaciente = public_path("images/{$nombrePaciente}");
+
+            if (!file_exists($rutaPaciente)) {
+                mkdir($rutaPaciente, 0777, true);
+            }
+
             $file = $request->file('Foto_Paciente');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('images/pacientes'), $filename);
-            $paciente->Foto_Paciente = $filename;
+            $file->move($rutaPaciente, $filename);
+
+            $paciente->Foto_Paciente = "images/{$nombrePaciente}/{$filename}";
         }
+
         $paciente->save();
         return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
     }
+
 
     public function edit($id)
     {
@@ -85,6 +97,7 @@ class PacientesController extends Controller
         if (!$paciente) {
             return redirect()->route('pacientes.index')->with('error', 'Paciente no encontrado.');
         }
+
         $paciente->Nombre = $request->Nombre;
         $paciente->ApePaterno = $request->ApePaterno;
         $paciente->ApeMaterno = $request->ApeMaterno;
@@ -100,20 +113,29 @@ class PacientesController extends Controller
         $paciente->ID_Municipio = $request->ID_Municipio;
 
         if ($request->hasFile('Foto_Paciente')) {
-            if ($paciente->Foto_Paciente) {
-                $rutaFoto = public_path('images/pacientes/' . $paciente->Foto_Paciente);
-                if (Storage::exists($rutaFoto)) {
-                    Storage::delete($rutaFoto);
-                }
+            $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
+            $rutaPaciente = public_path("images/{$nombrePaciente}");
+
+            if (!file_exists($rutaPaciente)) {
+                mkdir($rutaPaciente, 0777, true);
             }
+
+            // Eliminar la imagen anterior si existe
+            if ($paciente->Foto_Paciente && file_exists(public_path($paciente->Foto_Paciente))) {
+                unlink(public_path($paciente->Foto_Paciente));
+            }
+
             $file = $request->file('Foto_Paciente');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('images/pacientes'), $filename);
-            $paciente->Foto_Paciente = $filename;
+            $file->move($rutaPaciente, $filename);
+
+            $paciente->Foto_Paciente = "images/{$nombrePaciente}/{$filename}";
         }
+
         $paciente->save();
         return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado correctamente.');
     }
+
 
     public function destroy($id)
     {

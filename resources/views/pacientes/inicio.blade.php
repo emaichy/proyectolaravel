@@ -28,7 +28,7 @@
                 <td>{{ $paciente->TipoPaciente }}</td>
                 <td>
                     @if($paciente->Foto_Paciente)
-                        <img src="{{ asset('images/pacientes/'.$paciente->Foto_Paciente) }}" alt="Foto" width="50">
+                        <img src="{{ asset($paciente->Foto_Paciente) }}" alt="Foto" width="50">
                     @else
                         Sin foto
                     @endif

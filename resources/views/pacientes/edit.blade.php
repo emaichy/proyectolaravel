@@ -101,11 +101,8 @@
 
                 @if ($paciente->Foto_Paciente)
                     <div class="mb-2">
-                        <img src="{{ asset('images/pacientes/' . $paciente->Foto_Paciente) }}" alt="Foto del paciente"
-                            width="100"><br>
-                        <label class="form-check-label mt-2">
-                            <input type="checkbox" name="EliminarFoto" value="1"> Eliminar foto actual
-                        </label>
+                        <img src="{{ asset($paciente->Foto_Paciente) }}" alt="Foto del paciente"
+                            width="100">
                     </div>
                 @endif
 
