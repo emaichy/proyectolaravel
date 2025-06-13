@@ -47,7 +47,7 @@ class RadiografiasPacientesController extends Controller
 
             $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
             $carpetaPaciente = Str::slug($nombrePaciente);
-            $rutaCompleta = public_path('images/' . $carpetaPaciente . '/radiografias');
+            $rutaCompleta = public_path("pacients/{$carpetaPaciente}/images/radiografias");
 
             if (!file_exists($rutaCompleta)) {
                 mkdir($rutaCompleta, 0777, true);
@@ -59,7 +59,7 @@ class RadiografiasPacientesController extends Controller
             $file->move($rutaCompleta, $nombreArchivo);
 
             $radiografia = new RadiografiasPacientes();
-            $radiografia->RutaArchivo = $carpetaPaciente . '/radiografias/' . $nombreArchivo;
+            $radiografia->RutaArchivo = "pacients/{$carpetaPaciente}/images/radiografias/{$nombreArchivo}";
             $radiografia->Tipo = $request->Tipo;
             $radiografia->ID_Paciente = $request->ID_Paciente;
 
@@ -95,13 +95,13 @@ class RadiografiasPacientesController extends Controller
         $paciente = Pacientes::find($radiografia->ID_Paciente);
         $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
         $carpetaPaciente = Str::slug($nombrePaciente);
-        $rutaCompleta = public_path('images/' . $carpetaPaciente . '/radiografias');
+        $rutaCompleta = public_path("pacients/{$carpetaPaciente}/images/radiografias");
 
         if (!file_exists($rutaCompleta)) {
             mkdir($rutaCompleta, 0777, true);
         }
 
-        $rutaAnterior = public_path('images/' . $radiografia->RutaArchivo);
+        $rutaAnterior = public_path($radiografia->RutaArchivo);
         if (file_exists($rutaAnterior)) {
             unlink($rutaAnterior);
         }
@@ -111,7 +111,7 @@ class RadiografiasPacientesController extends Controller
         $nuevoNombre = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
         $archivo->move($rutaCompleta, $nuevoNombre);
 
-        $radiografia->RutaArchivo = $carpetaPaciente . '/radiografias/' . $nuevoNombre;
+        $radiografia->RutaArchivo = "pacients/{$carpetaPaciente}/images/radiografias/{$nuevoNombre}";
         $radiografia->save();
 
         return response()->json(['message' => 'Radiografía actualizada correctamente']);
@@ -121,7 +121,7 @@ class RadiografiasPacientesController extends Controller
     {
         $radiografia = RadiografiasPacientes::findOrFail($id);
         try {
-            $rutaArchivo = public_path('images/' . $radiografia->RutaArchivo);
+            $rutaArchivo = public_path($radiografia->RutaArchivo);
             if (file_exists($rutaArchivo)) {
                 unlink($rutaArchivo);
             }
@@ -135,7 +135,7 @@ class RadiografiasPacientesController extends Controller
     public function download($id)
     {
         $radiografia = RadiografiasPacientes::findOrFail($id);
-        $filePath = public_path('images/' . $radiografia->RutaArchivo);
+        $filePath = public_path($radiografia->RutaArchivo);
 
         if (!file_exists($filePath)) {
             abort(404, 'Archivo no encontrado');

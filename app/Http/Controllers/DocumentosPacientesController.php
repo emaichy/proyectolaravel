@@ -38,7 +38,7 @@ class DocumentosPacientesController extends Controller
             'pacienteId' => $id
         ]);
     }
-    
+
     public function store(Request $request)
     {
         try {
@@ -51,7 +51,7 @@ class DocumentosPacientesController extends Controller
             }
             $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
             $carpetaPaciente = Str::slug($nombrePaciente);
-            $rutaCompleta = public_path('docs/' . $carpetaPaciente);
+            $rutaCompleta = public_path("pacients/{$carpetaPaciente}/docs");
             if (!file_exists($rutaCompleta)) {
                 mkdir($rutaCompleta, 0777, true);
             }
@@ -62,7 +62,7 @@ class DocumentosPacientesController extends Controller
             $file->move($rutaCompleta, $nombreArchivo);
 
             $documento = new DocumentosPacientes();
-            $documento->RutaArchivo = $carpetaPaciente . '/' . $nombreArchivo;
+            $documento->RutaArchivo = "pacients/{$carpetaPaciente}/docs/{$nombreArchivo}";
             $documento->Tipo = $request->Tipo;
             $documento->ID_Paciente = $request->ID_Paciente;
 
@@ -96,10 +96,13 @@ class DocumentosPacientesController extends Controller
             'RutaArchivo' => 'required|file|mimes:pdf,jpg,jpeg,png',
         ]);
         $paciente = Pacientes::find($documento->ID_Paciente);
-        $nombrePaciente = $paciente->Nombre . ' ' . $paciente->ApePaterno . ' ' . $paciente->ApeMaterno;
+        $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
         $carpetaPaciente = Str::slug($nombrePaciente);
-        $rutaCompleta = public_path('docs/' . $carpetaPaciente);
-        $rutaAnterior = public_path('docs/' . $documento->RutaArchivo);
+        $rutaCompleta = public_path("pacients/{$carpetaPaciente}/docs");
+        if (!file_exists($rutaCompleta)) {
+            mkdir($rutaCompleta, 0777, true);
+        }
+        $rutaAnterior = public_path($documento->RutaArchivo);
         if (file_exists($rutaAnterior)) {
             unlink($rutaAnterior);
         }
@@ -107,7 +110,7 @@ class DocumentosPacientesController extends Controller
         $extension = $archivo->getClientOriginalExtension();
         $nuevoNombre = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
         $archivo->move($rutaCompleta, $nuevoNombre);
-        $documento->RutaArchivo = $carpetaPaciente . '/' . $nuevoNombre;
+        $documento->RutaArchivo = "pacients/{$carpetaPaciente}/docs/{$nuevoNombre}";
         $documento->save();
 
         return response()->json(['message' => 'Documento actualizado correctamente']);
@@ -118,7 +121,7 @@ class DocumentosPacientesController extends Controller
         $documento = DocumentosPacientes::findOrFail($id);
         try {
             if ($documento->RutaArchivo) {
-                $rutaArchivo = public_path('docs/' . $documento->RutaArchivo);
+                $rutaArchivo = public_path($documento->RutaArchivo);
                 if (file_exists($rutaArchivo)) {
                     unlink($rutaArchivo);
                 }
@@ -133,7 +136,7 @@ class DocumentosPacientesController extends Controller
     public function download($id)
     {
         $documento = DocumentosPacientes::findOrFail($id);
-        $filePath = public_path('docs/' . $documento->RutaArchivo);
+        $filePath = public_path($documento->RutaArchivo);
         if (!file_exists($filePath)) {
             abort(404, 'Archivo no encontrado');
         }

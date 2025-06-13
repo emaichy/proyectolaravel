@@ -39,8 +39,8 @@
                     <div class="document-card">
                         <div class="text-center fw-bold mb-2">{{ $foto->tipo_foto ?? 'Fotografía' }}</div>
                         <div class="image-wrapper">
-                            <img src="{{ asset('images/' . $foto->RutaArchivo) }}" class="preview-image" alt="Fotografía">
-                            <div class="overlay" onclick="showModal('{{ asset('fotos/' . $foto->ruta_archivo) }}')">
+                            <img src="{{ asset($foto->RutaArchivo) }}" class="preview-image" alt="Fotografía">
+                            <div class="overlay" onclick="showModal('{{ asset($foto->RutaArchivo) }}')">
                                 <i class="bi bi-eye">Ver</i>
                             </div>
                         </div>

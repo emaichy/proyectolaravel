@@ -27,8 +27,8 @@
                     <div class="document-card">
                         <div class="text-center fw-bold mb-2">{{ $radio->TipoRadiografia ?? 'Radiografía' }}</div>
                         <div class="image-wrapper">
-                            <img src="{{ asset('images/' . $radio->RutaArchivo) }}" class="preview-image" alt="Radiografía">
-                            <div class="overlay" onclick="showModal('{{ asset('images/' . $radio->RutaArchivo) }}')">
+                            <img src="{{ asset($radio->RutaArchivo) }}" class="preview-image" alt="Radiografía">
+                            <div class="overlay" onclick="showModal('{{ asset($radio->RutaArchivo) }}')">
                                 <i class="bi bi-eye">Ver</i>
                             </div>
                         </div>

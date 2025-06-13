@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-body text-center">
                         @if ($foto)
-                            <img src="{{ asset('images/' . $foto->RutaArchivo) }}" alt="{{ $tipo }}"
+                            <img src="{{ asset($foto->RutaArchivo) }}" alt="{{ $tipo }}"
                                 style="max-width: 100%; max-height: 200px; border-radius: 5px; border: 1px solid #ccc;">
                             <div class="mt-3">
                                 @if (isset($foto->ID_Fotografia))

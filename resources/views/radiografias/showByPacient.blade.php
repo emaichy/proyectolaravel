@@ -22,7 +22,7 @@
                     </div>
                     <div class="card-body text-center">
                         @if ($radiografia)
-                            <img src="{{ asset('images/' . $radiografia->RutaArchivo) }}"
+                            <img src="{{ asset($radiografia->RutaArchivo) }}"
                                 alt="{{ $tipo }}"
                                 style="max-width: 100%; max-height: 200px; border-radius: 5px; border: 1px solid #ccc;">
                             <div class="mt-3">

@@ -53,7 +53,7 @@ class FotografiasPacientesController extends Controller
 
             $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
             $carpetaPaciente = Str::slug($nombrePaciente);
-            $rutaCompleta = public_path('images/' . $carpetaPaciente . '/fotografias');
+            $rutaCompleta = public_path("pacients/{$carpetaPaciente}/images/fotografias");
 
             if (!file_exists($rutaCompleta)) {
                 mkdir($rutaCompleta, 0777, true);
@@ -65,7 +65,7 @@ class FotografiasPacientesController extends Controller
             $file->move($rutaCompleta, $nombreArchivo);
 
             $fotografia = new FotografiasPacientes();
-            $fotografia->RutaArchivo = $carpetaPaciente . '/fotografias/' . $nombreArchivo;
+            $fotografia->RutaArchivo = "pacients/{$carpetaPaciente}/images/fotografias/{$nombreArchivo}";
             $fotografia->Tipo = $request->Tipo;
             $fotografia->ID_Paciente = $request->ID_Paciente;
 
@@ -101,13 +101,13 @@ class FotografiasPacientesController extends Controller
         $paciente = Pacientes::find($fotografia->ID_Paciente);
         $nombrePaciente = $paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno;
         $carpetaPaciente = Str::slug($nombrePaciente);
-        $rutaCompleta = public_path('images/' . $carpetaPaciente . '/fotografias');
+        $rutaCompleta = public_path("pacients/{$carpetaPaciente}/images/fotografias");
 
         if (!file_exists($rutaCompleta)) {
             mkdir($rutaCompleta, 0777, true);
         }
 
-        $rutaAnterior = public_path('images/' . $fotografia->RutaArchivo);
+        $rutaAnterior = public_path($fotografia->RutaArchivo);
         if (file_exists($rutaAnterior)) {
             unlink($rutaAnterior);
         }
@@ -117,7 +117,7 @@ class FotografiasPacientesController extends Controller
         $nuevoNombre = time() . '_' . Str::slug(pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
         $archivo->move($rutaCompleta, $nuevoNombre);
 
-        $fotografia->RutaArchivo = $carpetaPaciente . '/fotografias/' . $nuevoNombre;
+        $fotografia->RutaArchivo = "pacients/{$carpetaPaciente}/images/fotografias/{$nuevoNombre}";
         $fotografia->save();
 
         return response()->json(['message' => 'Fotografía actualizada correctamente']);
@@ -127,7 +127,7 @@ class FotografiasPacientesController extends Controller
     {
         $fotografia = FotografiasPacientes::findOrFail($id);
         try {
-            $rutaArchivo = public_path('images/' . $fotografia->RutaArchivo);
+            $rutaArchivo = public_path($fotografia->RutaArchivo);
             if (file_exists($rutaArchivo)) {
                 unlink($rutaArchivo);
             }
@@ -141,7 +141,7 @@ class FotografiasPacientesController extends Controller
     public function download($id)
     {
         $fotografia = FotografiasPacientes::findOrFail($id);
-        $filePath = public_path('images/' . $fotografia->RutaArchivo);
+        $filePath = public_path($fotografia->RutaArchivo);
 
         if (!file_exists($filePath)) {
             abort(404, 'Archivo no encontrado');

@@ -37,7 +37,7 @@
                 @foreach ($documentos as $doc)
                     <div class="document-card">
                         <div class="text-center fw-bold mb-2">{{ $doc->Tipo }}</div>
-                        <iframe src="{{ asset('docs/' . $doc->RutaArchivo) }}" width="100%"
+                        <iframe src="{{ asset($doc->RutaArchivo) }}" width="100%"
                             height="150px"></iframe>
                         <p class="mt-2 mb-1 text-center">
                             <strong>Paciente:</strong>

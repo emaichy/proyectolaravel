@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentosPacientes;
 use App\Models\Estados;
+use App\Models\FotografiasPacientes;
 use App\Models\Pacientes;
+use App\Models\RadiografiasPacientes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PacientesController extends Controller
@@ -61,11 +63,13 @@ class PacientesController extends Controller
         $paciente->ID_Municipio = $request->ID_Municipio;
 
         $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
-        $rutaPaciente = public_path("images/{$nombrePaciente}");
-        if (!file_exists($rutaPaciente)) {
-            mkdir($rutaPaciente, 0777, true);
+        $rutaPaciente = public_path("pacients/{$nombrePaciente}");
+        $rutaImages = "{$rutaPaciente}/images";
+        $rutaDocs = "{$rutaPaciente}/docs";
+
+        if (!file_exists($rutaImages)) {
+            mkdir($rutaImages, 0777, true);
         }
-        $rutaDocs = public_path("docs/{$nombrePaciente}");
         if (!file_exists($rutaDocs)) {
             mkdir($rutaDocs, 0777, true);
         }
@@ -73,15 +77,13 @@ class PacientesController extends Controller
         if ($request->hasFile('Foto_Paciente')) {
             $file = $request->file('Foto_Paciente');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move($rutaPaciente, $filename);
-            $paciente->Foto_Paciente = "images/{$nombrePaciente}/{$filename}";
+            $file->move($rutaImages, $filename);
+            $paciente->Foto_Paciente = "pacients/{$nombrePaciente}/images/{$filename}";
         }
 
         $paciente->save();
         return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
     }
-
-
 
     public function edit($id)
     {
@@ -117,22 +119,19 @@ class PacientesController extends Controller
 
         if ($request->hasFile('Foto_Paciente')) {
             $nombrePaciente = Str::slug($request->Nombre . $request->ApePaterno . $request->ApeMaterno);
-            $rutaPaciente = public_path("images/{$nombrePaciente}");
+            $rutaImages = public_path("pacients/{$nombrePaciente}/images");
 
-            if (!file_exists($rutaPaciente)) {
-                mkdir($rutaPaciente, 0777, true);
+            if (!file_exists($rutaImages)) {
+                mkdir($rutaImages, 0777, true);
             }
-
-            // Eliminar la imagen anterior si existe
             if ($paciente->Foto_Paciente && file_exists(public_path($paciente->Foto_Paciente))) {
                 unlink(public_path($paciente->Foto_Paciente));
             }
 
             $file = $request->file('Foto_Paciente');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move($rutaPaciente, $filename);
-
-            $paciente->Foto_Paciente = "images/{$nombrePaciente}/{$filename}";
+            $file->move($rutaImages, $filename);
+            $paciente->Foto_Paciente = "pacients/{$nombrePaciente}/images/{$filename}";
         }
 
         $paciente->save();
@@ -170,14 +169,14 @@ class PacientesController extends Controller
         }
 
         $nombrePaciente = Str::slug($paciente->Nombre . $paciente->ApePaterno . $paciente->ApeMaterno);
-        $directorioImagenes = public_path("images/{$nombrePaciente}");
-        $this->eliminarDirectorioRecursivo($directorioImagenes);
-        $directorioDocs = public_path("docs/{$nombrePaciente}");
-        $this->eliminarDirectorioRecursivo($directorioDocs);
+        $directorioPaciente = public_path("pacients/{$nombrePaciente}");
+        $this->eliminarDirectorioRecursivo($directorioPaciente);
         $paciente->Status = 0;
         $paciente->Foto_Paciente = null;
         $paciente->save();
-
+        DocumentosPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        FotografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        RadiografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 }
