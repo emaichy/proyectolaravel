@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\FotografiasPacientesController;
+use App\Http\Controllers\MaestrosController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
 use App\Http\Controllers\RadiografiasPacientesController;
@@ -108,6 +109,16 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::delete('/delete/{id}', [FotografiasPacientesController::class, 'destroy'])->name('fotografias.destroy');
         Route::get('/paciente/{id}', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
         Route::get('/download/{id}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
+    });
+
+    Route::prefix('maestros')->group(function(){
+        Route::get('/', [MaestrosController::class, 'index'])->name('maestros.index');
+        Route::get('/{maestro}', [MaestrosController::class, 'show'])->name('maestros.show');
+        Route::get('/create', [MaestrosController::class, 'create'])->name('maestros.create');
+        Route::post('/store', [MaestrosController::class, 'store'])->name('maestros.store');
+        Route::get('/edit/{maestro}', [MaestrosController::class, 'edit'])->name('maestros.edit');
+        Route::put('/edit/{maestro}', [MaestrosController::class, 'update'])->name('maestros.update');
+        Route::delete('/delete/{id}', [MaestrosController::class, 'destroy'])->name('maestros.destroy');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);

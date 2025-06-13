@@ -26,6 +26,7 @@
             @endforeach
         </tbody>
     </table>
+    {{ $estados->links('pagination::bootstrap-4') }}
     @endif
 </div>
 @endsection
