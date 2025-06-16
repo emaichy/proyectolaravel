@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Maestros;
 use App\Models\Usuarios;
 use App\Models\Estados;
+use App\Models\Grupos;
 use App\Models\Municipios;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,16 +20,19 @@ class MaestrosController extends Controller
 
     public function show($id)
     {
-        $maestro = Maestros::find($id);
+        $maestro = Maestros::with(['grupos' => function ($query) {
+            $query->withCount('alumnos')->with('alumnos');
+        }])
+            ->findOrFail($id);
         if (!$maestro) {
-            return redirect()->route('maestros.index')->with('error', 'Paciente no encontrado.');
+            return redirect()->route('maestros.index')->with('error', 'Maestro no encontrado.');
         }
         $estados = Estados::where('Status', 1)->get();
         $municipios = collect();
         if ($estados->isNotEmpty()) {
             $municipios = $estados->first()->municipios()->where('Status', 1)->get();
         }
-        return view('maestro.show', compact('maestro'));
+        return view('maestro.show', compact('maestro', 'estados', 'municipios'));
     }
 
     public function create()
@@ -111,5 +115,40 @@ class MaestrosController extends Controller
         $maestro->Status = 0;
         $maestro->save();
         return redirect()->route('maestros.index')->with('success', 'Maestro eliminado correctamente');
+    }
+
+    public function gestionarGrupos(Maestros $maestro)
+    {
+        $gruposAsignados = $maestro->grupos()->with('semestre')->get();
+        $gruposDisponibles = Grupos::whereDoesntHave('maestro')
+            ->orWhere('ID_Maestro', $maestro->ID_Maestro)
+            ->with('semestre')
+            ->get();
+        return view('maestro.gestionargrupos', [
+            'maestro' => $maestro,
+            'gruposAsignados' => $gruposAsignados,
+            'gruposDisponibles' => $gruposDisponibles
+        ]);
+    }
+
+    public function asignarGrupo(Request $request, Maestros $maestro)
+    {
+        $request->validate([
+            'ID_Grupo' => 'required|exists:grupos,ID_Grupo'
+        ]);
+        $grupo = Grupos::find($request->ID_Grupo);
+        if ($grupo->ID_Maestro && $grupo->ID_Maestro != $maestro->ID_Maestro) {
+            return back()->with('error', 'Este grupo ya está asignado a otro maestro');
+        }
+        $grupo->update(['ID_Maestro' => $maestro->ID_Maestro]);
+
+        return back()->with('success', 'Grupo asignado correctamente');
+    }
+
+    public function desasignarGrupo(Maestros $maestro, Grupos $grupo)
+    {
+        $grupo->update(['ID_Maestro' => null]);
+
+        return back()->with('success', 'Grupo desasignado correctamente');
     }
 }

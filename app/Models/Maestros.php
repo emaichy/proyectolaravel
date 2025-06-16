@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Maestros extends Model
 {
     use HasFactory;
@@ -31,5 +32,16 @@ class Maestros extends Model
     {
         return $this->hasMany(Grupos::class, 'ID_Maestro');
     }
-}
 
+    public function alumnos()
+    {
+        return $this->hasManyThrough(
+            Alumnos::class,
+            Grupos::class,
+            'ID_Maestro',
+            'ID_Grupo',
+            'ID_Maestro',
+            'ID_Grupo'
+        );
+    }
+}

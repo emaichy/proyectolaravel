@@ -102,7 +102,7 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/download/{id}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
     });
 
-    Route::prefix('fotografias')->group(function(){
+    Route::prefix('fotografias')->group(function () {
         Route::get('/', [FotografiasPacientesController::class, 'index'])->name('fotografias.index');
         Route::post('/store', [FotografiasPacientesController::class, 'store'])->name('fotografias.store');
         Route::post('/update/{id}', [FotografiasPacientesController::class, 'update'])->name('fotografias.update');
@@ -111,7 +111,7 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/download/{id}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
     });
 
-    Route::prefix('maestros')->group(function(){
+    Route::prefix('maestros')->group(function () {
         Route::get('/', [MaestrosController::class, 'index'])->name('maestros.index');
         Route::get('/{maestro}', [MaestrosController::class, 'show'])->name('maestros.show');
         Route::get('/create', [MaestrosController::class, 'create'])->name('maestros.create');
@@ -119,6 +119,9 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/edit/{maestro}', [MaestrosController::class, 'edit'])->name('maestros.edit');
         Route::put('/edit/{maestro}', [MaestrosController::class, 'update'])->name('maestros.update');
         Route::delete('/delete/{id}', [MaestrosController::class, 'destroy'])->name('maestros.destroy');
+        Route::get('/{maestro}/grupos', [MaestrosController::class, 'gestionarGrupos'])->name('maestros.grupos');
+        Route::post('/{maestro}/asignar-grupo', [MaestrosController::class, 'asignarGrupo'])->name('maestros.asignar-grupo');
+        Route::delete('/{maestro}/desasignar-grupo/{grupo}', [MaestrosController::class, 'desasignarGrupo'])->name('maestros.desasignar-grupo');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);

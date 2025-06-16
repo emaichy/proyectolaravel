@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Semestre extends Model
 {
     use HasFactory;
-    protected $table = 'semestre';
+    protected $table = 'semestres';
     protected $primaryKey = 'ID_Semestre';
     protected $fillable = ['Semestre', 'Status'];
     public $timestamps = true;

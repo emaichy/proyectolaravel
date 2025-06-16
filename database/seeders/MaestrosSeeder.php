@@ -47,7 +47,7 @@ class MaestrosSeeder extends Seeder
                 'Sexo' => $faker->randomElement(['Masculino', 'Femenino']),
                 'Direccion' => $faker->streetAddress,
                 'NumeroExterior' => $faker->buildingNumber,
-                'NumeroInterior' => $faker->optional()->buildingNumber,
+                'NumeroInterior' => $faker->buildingNumber,
                 'CodigoPostal' => $faker->postcode,
                 'Pais' => 'México',
                 'Telefono' => $faker->phoneNumber,
