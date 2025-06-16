@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumnosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
@@ -113,7 +114,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::prefix('maestros')->group(function () {
         Route::get('/', [MaestrosController::class, 'index'])->name('maestros.index');
-        Route::get('/{maestro}', [MaestrosController::class, 'show'])->name('maestros.show');
         Route::get('/create', [MaestrosController::class, 'create'])->name('maestros.create');
         Route::post('/store', [MaestrosController::class, 'store'])->name('maestros.store');
         Route::get('/edit/{maestro}', [MaestrosController::class, 'edit'])->name('maestros.edit');
@@ -122,6 +122,11 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{maestro}/grupos', [MaestrosController::class, 'gestionarGrupos'])->name('maestros.grupos');
         Route::post('/{maestro}/asignar-grupo', [MaestrosController::class, 'asignarGrupo'])->name('maestros.asignar-grupo');
         Route::delete('/{maestro}/desasignar-grupo/{grupo}', [MaestrosController::class, 'desasignarGrupo'])->name('maestros.desasignar-grupo');
+        Route::get('/{maestro}', [MaestrosController::class, 'show'])->name('maestros.show');
+    });
+
+    Route::prefix('alumnos')->group(function(){
+        Route::get('/', [AlumnosController::class, 'index'])->name('alumnos.index');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
