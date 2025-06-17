@@ -127,6 +127,15 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::prefix('alumnos')->group(function(){
         Route::get('/', [AlumnosController::class, 'index'])->name('alumnos.index');
+        Route::get('/create', [AlumnosController::class, 'create'])->name('alumnos.create');
+        Route::post('/store', [AlumnosController::class, 'store'])->name('alumnos.store');
+        Route::get('/edit/{id}', [AlumnosController::class, 'edit'])->name('alumnos.edit');
+        Route::put('/edit/{id}', [AlumnosController::class, 'update'])->name('alumnos.update');
+        Route::delete('/delete/{id}', [AlumnosController::class, 'destroy'])->name('alumnos.destroy');
+        Route::get('/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
+        Route::get('/{alumno}/grupos', [AlumnosController::class, 'gestionarGrupos'])->name('alumnos.grupos');
+        Route::post('/{alumno}/asignar-grupo', [AlumnosController::class, 'asignarGrupo'])->name('alumnos.asignar-grupo');
+        Route::delete('/{alumno}/desasignar-grupo/{grupo}', [AlumnosController::class, 'desasignarGrupo'])->name('alumnos.desasignar-grupo');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);

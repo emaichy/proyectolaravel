@@ -28,7 +28,7 @@ return new class extends Migration
             $table->enum('TipoAlumno', ['Regular', 'Irregular'])->default('Regular');
             $table->string('Telefono', 15)->nullable();
             $table->string('Curp', 18)->nullable();
-            $table->unsignedBigInteger('ID_Grupo');
+            $table->unsignedBigInteger('ID_Grupo')->nullable();
             $table->unsignedBigInteger('ID_Usuario');
             $table->unsignedBigInteger('ID_Estado')->nullable();
             $table->unsignedBigInteger('ID_Municipio')->nullable();

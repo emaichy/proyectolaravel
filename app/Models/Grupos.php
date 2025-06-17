@@ -25,7 +25,7 @@ class Grupos extends Model
 
     public function alumnos()
     {
-        return $this->hasMany(Alumnos::class, 'ID_Grupo');
+        return $this->hasMany(Alumnos::class, 'ID_Grupo', 'ID_Grupo');
     }
 }
 
