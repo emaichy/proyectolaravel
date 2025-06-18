@@ -14,11 +14,20 @@ class GruposSeeder extends Seeder
     public function run(): void
     {
         for ($i = 1; $i <= 11; $i++) {
-            for ($j = 1; $j <= 3; $j++) {
-            DB::table('grupos')->insert([
-                'NombreGrupo' => "grupo {$i}\"{$j}",
-                'ID_Semestre' => $i
-            ]);
+            if ($i > 1 && $i < 5) {
+                for ($j = 1; $j <= 5; $j++) {
+                    DB::table('grupos')->insert([
+                        'NombreGrupo' => "Grupo {$i}°{$j}",
+                        'ID_Semestre' => $i
+                    ]);
+                }
+            } else {
+                for ($j = 1; $j <= 3; $j++) {
+                    DB::table('grupos')->insert([
+                        'NombreGrupo' => "Grupo {$i}°{$j}",
+                        'ID_Semestre' => $i
+                    ]);
+                }
             }
         }
     }

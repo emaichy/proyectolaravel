@@ -17,7 +17,9 @@ class AlumnosSeeder extends Seeder
     {
         $faker = Faker::create('es_MX');
         $totalGrupos = 11;
-        $matriculaBase = 100500;
+        $matriculaBase = 100000;
+
+        for ($grupo = 1; $grupo <= $totalGrupos; $grupo++) {
             for ($i = 1; $i <= 20; $i++) {
                 $idEstado = rand(1, 32);
                 $municipios = Municipios::where('ID_Estado', $idEstado)->pluck('ID_Estado')->toArray();
@@ -45,15 +47,17 @@ class AlumnosSeeder extends Seeder
                     'Direccion' => $faker->streetAddress,
                     'NumeroExterior' => $faker->buildingNumber,
                     'NumeroInterior' => $faker->buildingNumber,
-                    'CodigoPostal' => $faker->postcode,
+                    'CodigoPostal' => $faker->postcode(5),
                     'Pais' => 'México',
                     'TipoAlumno' => $faker->randomElement(['Regular', 'Irregular']),
                     'Telefono' => $telefono,
                     'Curp' => strtoupper($faker->bothify('????######??????##')),
+                    'ID_Grupo' => $grupo,
                     'ID_Usuario' => $usuario->ID_Usuario,
                     'ID_Estado' => $idEstado,
                     'ID_Municipio' => $faker->randomElement($municipios),
                 ]);
             }
+        }
     }
 }

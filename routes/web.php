@@ -37,6 +37,8 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuariosController::class, 'index'])->name('usuarios.index');
+        Route::get('/create', [UsuariosController::class, 'create'])->name('usuarios.create');
+        Route::post('/create', [UsuariosController::class, 'store'])->name('usuarios.store');
         Route::get('/edit/{usuario}', [UsuariosController::class, 'edit'])->name('usuarios.edit');
         Route::put('/edit/{usuario}', [UsuariosController::class, 'update'])->name('usuarios.update');
         Route::get('/{usuario}', [UsuariosController::class, 'show'])->name('usuarios.show');
@@ -126,7 +128,7 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{maestro}', [MaestrosController::class, 'show'])->name('maestros.show');
     });
 
-    Route::prefix('alumnos')->group(function(){
+    Route::prefix('alumnos')->group(function () {
         Route::get('/', [AlumnosController::class, 'index'])->name('alumnos.index');
         Route::get('/create', [AlumnosController::class, 'create'])->name('alumnos.create');
         Route::post('/store', [AlumnosController::class, 'store'])->name('alumnos.store');
@@ -157,9 +159,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
 });
-
-Route::get('/create', [UsuariosController::class, 'create'])->name('usuarios.create');
-Route::post('/create', [UsuariosController::class, 'store'])->name('usuarios.store');
 
 Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
     Route::get('/alumno', function () {
