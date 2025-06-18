@@ -30,7 +30,9 @@ class Maestros extends Model
 
     public function grupos()
     {
-        return $this->hasMany(Grupos::class, 'ID_Maestro');
+        return $this->belongsToMany(Grupos::class, 'grupo_maestros', 'ID_Maestro', 'ID_Grupo')
+            ->withPivot('ID_Asignacion', 'Status')
+            ->withTimestamps();
     }
 
     public function alumnos()

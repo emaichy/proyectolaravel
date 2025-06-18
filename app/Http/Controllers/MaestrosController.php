@@ -120,10 +120,7 @@ class MaestrosController extends Controller
     public function gestionarGrupos(Maestros $maestro)
     {
         $gruposAsignados = $maestro->grupos()->with('semestre')->get();
-        $gruposDisponibles = Grupos::whereDoesntHave('maestro')
-            ->orWhere('ID_Maestro', $maestro->ID_Maestro)
-            ->with('semestre')
-            ->get();
+        $gruposDisponibles = Grupos::whereDoesntHave('maestros')->with('semestre')->get();
         return view('maestro.gestionargrupos', [
             'maestro' => $maestro,
             'gruposAsignados' => $gruposAsignados,
@@ -136,19 +133,20 @@ class MaestrosController extends Controller
         $request->validate([
             'ID_Grupo' => 'required|exists:grupos,ID_Grupo'
         ]);
-        $grupo = Grupos::find($request->ID_Grupo);
-        if ($grupo->ID_Maestro && $grupo->ID_Maestro != $maestro->ID_Maestro) {
-            return back()->with('error', 'Este grupo ya está asignado a otro maestro');
+        $grupoYaAsignado = $maestro->grupos()->where('grupos.ID_Grupo', $request->ID_Grupo)->exists();
+        if ($grupoYaAsignado) {
+            return back()->with('error', 'Este grupo ya está asignado a este maestro.');
         }
-        $grupo->update(['ID_Maestro' => $maestro->ID_Maestro]);
-
+        $maestro->grupos()->attach($request->ID_Grupo, ['Status' => 1]);
         return back()->with('success', 'Grupo asignado correctamente');
     }
 
     public function desasignarGrupo(Maestros $maestro, Grupos $grupo)
     {
-        $grupo->update(['ID_Maestro' => null]);
-
+        $maestro->grupos()->detach($grupo->ID_Grupo);
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
         return back()->with('success', 'Grupo desasignado correctamente');
     }
 }

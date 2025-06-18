@@ -53,6 +53,35 @@
                 </div>
             </div>
         </div>
+        <div class="card shadow-sm mb-5 border-0">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Agregar maestros</h5>
+            </div>
+            <div class="card-body">
+                <label for="maestro-select" class="form-label">Selecciona maestro:</label>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="maestro-select">
+                        <option value="" disabled selected>-- Selecciona un maestro --</option>
+                        @foreach ($maestrosDisponibles as $maestro)
+                            <option value="{{ $maestro->ID_Maestro }}">
+                                {{ $maestro->Nombre }} {{ $maestro->ApePaterno }} {{ $maestro->ApeMaestro }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btn-agregar-maestro">Seleccionar</button>
+                </div>
+                <div id="lista-contenedor-maestros" style="display: none;">
+                    <h6>Lista preliminar de maestros:</h6>
+                    <form id="form-agregar-maestros" method="POST"
+                        action="{{ route('grupos.asignar-maestros', $grupo->ID_Grupo) }}">
+                        @csrf
+                        <ul class="list-group mb-3" id="lista-maestros"></ul>
+                        <button type="submit" class="btn btn-success">Agregar maestros</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div id="grupo-detalle">
             @include('grupos.detalle', [
                 'grupo' => $grupo,
@@ -121,25 +150,26 @@
             }
 
             function cargarGrupo(id) {
-                fetch(`/grupos/ajax/${id}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        document.getElementById('grupo-detalle').innerHTML = data.html;
-                        const form = document.getElementById('form-agregar-alumnos');
-                        if (form) {
-                            form.action = `/grupos/${id}/asignar-alumnos`;
-                        }
-                        history.pushState(null, '', `/grupos/${id}`);
-                        renderGrupos();
-                    });
+    fetch(`/grupos/ajax/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('grupo-detalle').innerHTML = data.html;
+
+            const form = document.getElementById('form-agregar-alumnos');
+            if (form) {
+                form.action = `/grupos/${id}/asignar-alumnos`;
             }
-            btnAnterior.addEventListener('click', () => {
-                const idx = todosLosGrupos.findIndex(g => g.ID_Grupo == grupoActualId);
-                if (idx > 0) {
-                    grupoActualId = todosLosGrupos[idx - 1].ID_Grupo;
-                    cargarGrupo(grupoActualId);
-                }
-            });
+
+            const formMaestros = document.getElementById('form-agregar-maestros');
+            if (formMaestros) {
+                formMaestros.action = `/grupos/${id}/asignar-maestros`;
+            }
+
+            history.pushState(null, '', `/grupos/${id}`);
+            renderGrupos();
+        });
+}
+
             btnSiguiente.addEventListener('click', () => {
                 const idx = todosLosGrupos.findIndex(g => g.ID_Grupo == grupoActualId);
                 if (idx < todosLosGrupos.length - 1) {
@@ -251,6 +281,107 @@
                 nombre
             });
             renderLista();
+        });
+        const selectMaestro = document.getElementById('maestro-select');
+        const btnAgregarMaestro = document.getElementById('btn-agregar-maestro');
+        const listaMaestros = document.getElementById('lista-maestros');
+        let maestrosSeleccionados = [];
+
+        function renderListaMaestros() {
+            const contenedorListaMaestros = document.getElementById('lista-contenedor-maestros');
+            listaMaestros.innerHTML = '';
+
+            if (maestrosSeleccionados.length > 0) {
+                contenedorListaMaestros.style.display = 'block';
+            } else {
+                contenedorListaMaestros.style.display = 'none';
+            }
+
+            maestrosSeleccionados.forEach((maestro, index) => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                const label = document.createElement('span');
+                label.textContent = maestro.nombre;
+
+                const btnQuitar = document.createElement('button');
+                btnQuitar.type = 'button';
+                btnQuitar.className = 'btn btn-sm btn-outline-danger';
+                btnQuitar.textContent = 'Quitar';
+                btnQuitar.onclick = () => {
+                    maestrosSeleccionados.splice(index, 1);
+                    renderListaMaestros();
+                };
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'maestros[]';
+                hiddenInput.value = maestro.id;
+
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'd-flex align-items-center gap-2';
+                leftDiv.appendChild(label);
+
+                item.appendChild(leftDiv);
+                item.appendChild(btnQuitar);
+                item.appendChild(hiddenInput);
+                listaMaestros.appendChild(item);
+            });
+
+            if (maestrosSeleccionados.length > 0) {
+                const btnLimpiar = document.createElement('button');
+                btnLimpiar.type = 'button';
+                btnLimpiar.className = 'btn btn-warning mt-3';
+                btnLimpiar.textContent = 'Limpiar lista';
+                btnLimpiar.onclick = () => {
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esto eliminará todos los maestros seleccionados de la lista.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, limpiar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            maestrosSeleccionados = [];
+                            renderListaMaestros();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Lista limpia',
+                                text: 'Todos los maestros fueron eliminados de la lista.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                };
+                listaMaestros.appendChild(btnLimpiar);
+            }
+        }
+
+        btnAgregarMaestro.addEventListener('click', () => {
+            const selectedOption = selectMaestro.options[selectMaestro.selectedIndex];
+            if (!selectedOption || selectedOption.value === "") {
+                Swal.fire('Atención', 'Debes seleccionar un maestro válido.', 'warning');
+                return;
+            }
+            const id = parseInt(selectedOption.value);
+            const nombre = selectedOption.text;
+            if (isNaN(id)) {
+                Swal.fire('Error', 'ID del maestro no válido.', 'error');
+                return;
+            }
+            if (maestrosSeleccionados.some(m => m.id === id)) {
+                Swal.fire('Atención', 'Este maestro ya fue agregado.', 'info');
+                return;
+            }
+            maestrosSeleccionados.push({
+                id,
+                nombre
+            });
+            renderListaMaestros();
         });
     </script>
 

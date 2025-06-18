@@ -10,12 +10,14 @@ class Grupos extends Model
     use HasFactory;
     protected $table = 'grupos';
     protected $primaryKey = 'ID_Grupo';
-    protected $fillable = ['NombreGrupo', 'ID_Maestro', 'ID_Semestre', 'Status'];
+    protected $fillable = ['NombreGrupo', 'ID_Semestre', 'Status'];
     public $timestamps = true;
 
-    public function maestro()
+    public function maestros()
     {
-        return $this->belongsTo(Maestros::class, 'ID_Maestro');
+        return $this->belongsToMany(Maestros::class, 'grupo_maestros', 'ID_Grupo', 'ID_Maestro')
+            ->withPivot('ID_Asignacion', 'Status')
+            ->withTimestamps();
     }
 
     public function semestre()
@@ -28,4 +30,3 @@ class Grupos extends Model
         return $this->hasMany(Alumnos::class, 'ID_Grupo', 'ID_Grupo');
     }
 }
-

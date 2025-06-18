@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GrupoMaestro extends Model
 {
     use HasFactory;
-    protected $table = 'grupo_maestro';
+    protected $table = 'grupo_maestros';
     protected $primaryKey = 'ID_Asignacion';
     protected $fillable = ['ID_Grupo', 'ID_Maestro', 'Status'];
     public $timestamps = true;

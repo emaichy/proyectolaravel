@@ -32,12 +32,13 @@ class GruposController extends Controller
 
     public function show($id)
     {
-        $grupo = Grupos::with(['alumnos', 'maestro'])->findOrFail($id);
+        $grupo = Grupos::with(['alumnos', 'maestros'])->findOrFail($id);
         $todosLosGrupos = Grupos::where('Status', 1)->get();
         $alumnosDisponibles = Alumnos::where('Status', 1)
             ->whereNull('ID_Grupo')
             ->get();
-        return view('grupos.show', compact('grupo', 'todosLosGrupos', 'alumnosDisponibles'));
+        $maestrosDisponibles = Maestros::where('Status', 1)->get();
+        return view('grupos.show', compact('grupo', 'todosLosGrupos', 'alumnosDisponibles', 'maestrosDisponibles'));
     }
 
     public function edit($id)
@@ -81,7 +82,7 @@ class GruposController extends Controller
     public function asignarMaestros(Request $request, $id)
     {
         $grupo = Grupos::findOrFail($id);
-        $grupo->maestros()->sync($request->input('maestros', []));
+        $grupo->maestros()->syncWithoutDetaching($request->input('maestros', []));
         return redirect()->route('grupos.show', $id)->with('success', 'Maestros asignados correctamente.');
     }
 
@@ -128,13 +129,28 @@ class GruposController extends Controller
     public function desasignarMaestros(Request $request, $id)
     {
         $grupo = Grupos::findOrFail($id);
-        $grupo->maestros()->detach($request->input('maestros', []));
-        return redirect()->route('grupos.show', $id)->with('success', 'Maestros desasignados correctamente.');
+        $maestrosIds = $request->input('maestros');
+        if (!$maestrosIds) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'No se seleccionó ningún maestro para quitar.'], 422);
+            }
+            return redirect()->route('grupos.show', $id)
+                ->with('error', 'No se seleccionó ningún maestro para quitar.');
+        }
+        if (!is_array($maestrosIds)) {
+            $maestrosIds = [$maestrosIds];
+        }
+        $grupo->maestros()->detach($maestrosIds);
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+        return redirect()->route('grupos.show', $id)
+            ->with('success', 'Maestros desasignados correctamente.');
     }
 
     public function ajaxShow($id)
     {
-        $grupo = Grupos::with(['alumnos', 'maestro'])->findOrFail($id);
+        $grupo = Grupos::with(['alumnos', 'maestros'])->findOrFail($id);
         $alumnosDisponibles = Alumnos::whereNull('ID_Grupo')
             ->orWhere('ID_Grupo', $grupo->ID_Grupo)
             ->get();
