@@ -24,7 +24,7 @@ class AlumnosController extends Controller
                 $q->where('ID_Semestre', $request->semestre);
             });
         }
-        $alumnos = $query->with(['grupos'])->paginate(10);
+        $alumnos = $query->with(['grupo'])->paginate(10);
         if ($alumnos->isEmpty() && $alumnos->currentPage() > 1) {
             return redirect()->route('alumnos.index', array_merge($request->except('page'), [
                 'page' => $alumnos->lastPage()
@@ -168,7 +168,7 @@ class AlumnosController extends Controller
         $request->validate([
             'ID_Grupo' => 'required|exists:grupos,ID_Grupo',
         ]);
-        $alumno = Alumnos::find($request->ID_Alumno);
+        $alumno=Alumnos::find($alumno->Matricula);
         if (!$alumno) {
             return back()->with('error', 'Alumno no encontrado.');
         }
@@ -177,9 +177,10 @@ class AlumnosController extends Controller
         return back()->with('success', 'Grupo asignado exitosamente al alumno.');
     }
 
+
     public function desasignarGrupo(Alumnos $alumno)
     {
-        $alumno = Alumnos::find($alumno->ID_Alumno);
+        $alumno = Alumnos::find($alumno->Matricula);
         if (!$alumno) {
             return back()->with('error', 'Alumno no encontrado.');
         }

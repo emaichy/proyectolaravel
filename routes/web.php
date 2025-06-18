@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\FotografiasPacientesController;
+use App\Http\Controllers\GruposController;
 use App\Http\Controllers\MaestrosController;
 use App\Http\Controllers\MunicipiosController;
 use App\Http\Controllers\PacientesController;
@@ -136,6 +137,21 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{alumno}/grupos', [AlumnosController::class, 'gestionarGrupos'])->name('alumnos.grupos');
         Route::post('/{alumno}/asignar-grupo', [AlumnosController::class, 'asignarGrupo'])->name('alumnos.asignar-grupo');
         Route::delete('/{alumno}/desasignar-grupo/{grupo}', [AlumnosController::class, 'desasignarGrupo'])->name('alumnos.desasignar-grupo');
+    });
+
+    Route::prefix('grupos')->group(function () {
+        Route::get('/', [GruposController::class, 'index'])->name('grupos.index');
+        Route::get('/create', [GruposController::class, 'create'])->name('grupos.create');
+        Route::post('/store', [GruposController::class, 'store'])->name('grupos.store');
+        Route::get('/edit/{id}', [GruposController::class, 'edit'])->name('grupos.edit');
+        Route::put('/edit/{id}', [GruposController::class, 'update'])->name('grupos.update');
+        Route::delete('/delete/{id}', [GruposController::class, 'destroy'])->name('grupos.destroy');
+        Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
+        Route::post('/{grupo}/asignar-alumnos', [GruposController::class, 'asignarAlumnos'])->name('grupos.asignar-alumnos');
+        Route::post('/{grupo}/asignar-maestros', [GruposController::class, 'asignarMaestros'])->name('grupos.asignar-maestros');
+        Route::delete('/{grupo}/desasignar-alumno/{alumno}', [GruposController::class, 'desasignarAlumno'])->name('grupos.desasignar-alumno');
+        Route::delete('/{grupo}/desasignar-maestro/{maestro}', [GruposController::class, 'desasignarMaestro'])->name('grupos.desasignar-maestro');
+        Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
