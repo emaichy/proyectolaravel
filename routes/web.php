@@ -149,6 +149,7 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
         Route::post('/{grupo}/asignar-alumnos', [GruposController::class, 'asignarAlumnos'])->name('grupos.asignar-alumnos');
         Route::post('/{grupo}/asignar-maestros', [GruposController::class, 'asignarMaestros'])->name('grupos.asignar-maestros');
+        Route::delete('/{grupo}/desasignar-alumnos', [GruposController::class, 'desasignarAlumnos'])->name('grupos.desasignar-alumnos');
         Route::delete('/{grupo}/desasignar-alumno/{alumno}', [GruposController::class, 'desasignarAlumno'])->name('grupos.desasignar-alumno');
         Route::delete('/{grupo}/desasignar-maestro/{maestro}', [GruposController::class, 'desasignarMaestro'])->name('grupos.desasignar-maestro');
         Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');

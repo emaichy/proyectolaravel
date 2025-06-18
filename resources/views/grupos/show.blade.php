@@ -1,27 +1,56 @@
 @extends('layouts.app')
 
 @section('content')
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
     <div class="container py-4">
         <div class="card shadow-sm mb-5 border-0">
-            <div class="d-none">
-                <form id="form-agregar-alumnos" method="POST"
-                    action="{{ route('grupos.asignar-alumnos', $grupo->ID_Grupo) }}">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="alumnos" class="form-label">Selecciona alumnos para agregar:</label>
-                        <select multiple class="form-control" id="alumnos" name="alumnos[]">
-                            @foreach ($alumnosDisponibles as $alumno)
-                                <option value="{{ $alumno->ID_Alumno }}">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Agregar alumnos</h5>
+            </div>
+            <div class="card-body">
+                <label for="alumno-select" class="form-label">Selecciona alumno:</label>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="alumno-select">
+                        <option value="" disabled selected>-- Selecciona un alumno --</option>
+                        @foreach ($alumnosDisponibles as $alumno)
+                            @if ($alumno->Matricula)
+                                <option value="{{ $alumno->Matricula }}">
                                     {{ $alumno->Nombre }} {{ $alumno->ApePaterno }} {{ $alumno->ApeMaterno }}
                                 </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div id="alumnos-seleccionados" class="mb-3">
-                        <!-- Alumnos seleccionados aparecen aquí -->
-                    </div>
-                    <button type="submit" class="btn btn-success">Agregar alumnos seleccionados</button>
-                </form>
+                            @endif
+                        @endforeach
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btn-agregar-alumno">Seleccionar</button>
+                </div>
+                <div id="lista-contenedor" style="display: none;">
+                    <h6>Lista preliminar de alumnos:</h6>
+                    <form id="form-agregar-alumnos" method="POST"
+                        action="{{ route('grupos.asignar-alumnos', $grupo->ID_Grupo) }}">
+                        @csrf
+                        <ul class="list-group mb-3" id="lista-alumnos">
+                        </ul>
+                        <button type="submit" class="btn btn-success">Agregar alumnos seleccionados</button>
+                    </form>
+                </div>
             </div>
         </div>
         <div id="grupo-detalle">
@@ -39,29 +68,6 @@
     </div>
 
     <script>
-        const selectAlumnos = document.getElementById('alumnos');
-        const alumnosSeleccionadosDiv = document.getElementById('alumnos-seleccionados');
-
-        function actualizarSeleccionados() {
-            alumnosSeleccionadosDiv.innerHTML = '';
-            Array.from(selectAlumnos.selectedOptions).forEach(option => {
-                const span = document.createElement('span');
-                span.className = 'badge bg-info text-dark me-2 p-2';
-                span.textContent = option.text + ' ';
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.textContent = 'Quitar';
-                btn.className = 'btn btn-sm btn-outline-danger ms-2';
-                btn.onclick = () => {
-                    option.selected = false;
-                    actualizarSeleccionados();
-                };
-                span.appendChild(btn);
-                alumnosSeleccionadosDiv.appendChild(span);
-                alumnosSeleccionadosDiv.appendChild(document.createElement('br'));
-            });
-        }
-        selectAlumnos.addEventListener('change', actualizarSeleccionados);
         document.addEventListener('DOMContentLoaded', () => {
             const todosLosGrupos = @json($todosLosGrupos);
             let grupoActualId = {{ $grupo->ID_Grupo }};
@@ -119,6 +125,11 @@
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById('grupo-detalle').innerHTML = data.html;
+                        const form = document.getElementById('form-agregar-alumnos');
+                        if (form) {
+                            form.action = `/grupos/${id}/asignar-alumnos`;
+                        }
+                        history.pushState(null, '', `/grupos/${id}`);
                         renderGrupos();
                     });
             }
@@ -137,6 +148,109 @@
                 }
             });
             renderGrupos();
+        });
+
+        const selectAlumno = document.getElementById('alumno-select');
+        const btnAgregar = document.getElementById('btn-agregar-alumno');
+        const lista = document.getElementById('lista-alumnos');
+        const form = document.getElementById('form-agregar-alumnos');
+        let alumnosSeleccionados = [];
+
+        function renderLista() {
+            const contenedorLista = document.getElementById('lista-contenedor');
+            lista.innerHTML = '';
+
+            if (alumnosSeleccionados.length > 0) {
+                contenedorLista.style.display = 'block';
+            } else {
+                contenedorLista.style.display = 'none';
+            }
+
+            alumnosSeleccionados.forEach((alumno, index) => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                const label = document.createElement('span');
+                label.textContent = alumno.nombre;
+
+                const btnQuitar = document.createElement('button');
+                btnQuitar.type = 'button';
+                btnQuitar.className = 'btn btn-sm btn-outline-danger';
+                btnQuitar.textContent = 'Quitar';
+                btnQuitar.onclick = () => {
+                    alumnosSeleccionados.splice(index, 1);
+                    renderLista();
+                };
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'alumnos[]';
+                hiddenInput.value = alumno.id;
+
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'd-flex align-items-center gap-2';
+                leftDiv.appendChild(label);
+
+                item.appendChild(leftDiv);
+                item.appendChild(btnQuitar);
+                item.appendChild(hiddenInput);
+                lista.appendChild(item);
+            });
+
+            if (alumnosSeleccionados.length > 0) {
+                const btnLimpiar = document.createElement('button');
+                btnLimpiar.type = 'button';
+                btnLimpiar.className = 'btn btn-warning mt-3';
+                btnLimpiar.textContent = 'Limpiar lista';
+                btnLimpiar.onclick = () => {
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: 'Esto eliminará todos los alumnos seleccionados de la lista.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, limpiar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            alumnosSeleccionados = [];
+                            renderLista();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Lista limpia',
+                                text: 'Todos los alumnos fueron eliminados de la lista.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
+                };
+                lista.appendChild(btnLimpiar);
+            }
+        }
+        btnAgregar.addEventListener('click', () => {
+            const selectedOption = selectAlumno.options[selectAlumno.selectedIndex];
+            console.log("Selected option:", selectedOption);
+            if (!selectedOption || selectedOption.value === "") {
+                Swal.fire('Atención', 'Debes seleccionar un alumno válido.', 'warning');
+                return;
+            }
+            const id = parseInt(selectedOption.value);
+            const nombre = selectedOption.text;
+            if (isNaN(id)) {
+                Swal.fire('Error', 'ID del alumno no válido.', 'error');
+                return;
+            }
+            if (alumnosSeleccionados.some(a => a.id === id)) {
+                Swal.fire('Atención', 'Este alumno ya fue agregado.', 'info');
+                return;
+            }
+            alumnosSeleccionados.push({
+                id,
+                nombre
+            });
+            renderLista();
         });
     </script>
 
