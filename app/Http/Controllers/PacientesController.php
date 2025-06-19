@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AsignacionPacientesAlumnos;
 use App\Models\DocumentosPacientes;
 use App\Models\Estados;
 use App\Models\FotografiasPacientes;
@@ -178,5 +179,16 @@ class PacientesController extends Controller
         FotografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         RadiografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
+    }
+
+    public function list()
+    {
+        $asignados = AsignacionPacientesAlumnos::pluck('ID_Paciente');
+        $pacientes = Pacientes::whereNotIn('ID_Paciente', $asignados)
+            ->select('ID_Paciente', 'Nombre', 'ApePaterno', 'ApeMaterno')
+            ->orderBy('Nombre', 'asc')
+            ->where('Status', 1)
+            ->get();
+        return response()->json($pacientes);
     }
 }

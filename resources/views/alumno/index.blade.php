@@ -99,8 +99,15 @@
                             <td>{{ $alumno->grupo->NombreGrupo ?? 'N/A' }}</td>
                             <td>{{ $alumno->grupo->semestre->Semestre ?? 'N/A' }}</td>
                             <td>
-                                <a href="{{ route('alumnos.show', $alumno->Matricula) }}" class="btn btn-sm btn-info">Ver</a>
-                                <a href="{{ route('alumnos.edit', $alumno->Matricula) }}" class="btn btn-sm btn-primary">Editar</a>
+                                <button class="btn btn-sm btn-success asignar-paciente-btn"
+                                    data-alumno-id="{{ $alumno->Matricula }}"
+                                    data-alumno-nombre="{{ $alumno->Nombre }} {{ $alumno->ApePaterno }}">
+                                    Asignar Paciente
+                                </button>
+                                <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
+                                    class="btn btn-sm btn-info">Ver</a>
+                                <a href="{{ route('alumnos.edit', $alumno->Matricula) }}"
+                                    class="btn btn-sm btn-primary">Editar</a>
                                 <form action="{{ route('alumnos.destroy', $alumno->Matricula) }}" method="POST"
                                     class="d-inline form-eliminar" data-id="{{ $alumno->Matricula }}">
                                     @csrf
@@ -117,11 +124,41 @@
                 {{ $alumnos->appends(request()->query())->links('pagination::bootstrap-4') }}
             </div>
         @endif
+        <div class="modal fade" id="modalAsignarPaciente" tabindex="-1" aria-labelledby="modalAsignarPacienteLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="formAsignarPaciente">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalAsignarPacienteLabel">Asignar Paciente a <span
+                                    id="alumnoNombre"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="alumno_id" id="modalAlumnoId">
+                            <div class="mb-3">
+                                <label for="pacienteSelect" class="form-label">Paciente:</label>
+                                <select class="form-select" id="pacienteSelect" name="paciente_id" style="width:100%;">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Asignar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         document.addEventListener('DOMContentLoaded', function() {
             const forms = document.querySelectorAll('.form-eliminar');
-
             forms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -178,6 +215,35 @@
                             });
                         }
                     });
+                });
+            });
+        });
+        $(document).ready(function() {
+            $('.asignar-paciente-btn').on('click', function() {
+                let alumnoId = $(this).data('alumno-id');
+                let nombre = $(this).data('alumno-nombre');
+                $('#modalAlumnoId').val(alumnoId);
+                $('#alumnoNombre').text(nombre);
+                $.get("{{ route('pacientes.list') }}", function(data) {
+                    let select = $('#pacienteSelect');
+                    select.empty();
+                    data.forEach(function(pac) {
+                        select.append(
+                            `<option value="${pac.ID_Paciente}">${pac.Nombre} ${pac.ApePaterno} ${pac.ApeMaterno}</option>`
+                        );
+                    });
+                });
+
+                $('#modalAsignarPaciente').modal('show');
+            });
+            $('#formAsignarPaciente').on('submit', function(e) {
+                e.preventDefault();
+                let datos = $(this).serialize();
+                $.post("{{ route('asignaciones.store') }}", datos, function(response) {
+                    Swal.fire('¡Listo!', 'Paciente asignado correctamente.', 'success');
+                    $('#modalAsignarPaciente').modal('hide');
+                }).fail(function(xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Ocurrió un error', 'error');
                 });
             });
         });

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumnosController;
+use App\Http\Controllers\AsignacionPacientesAlumnosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
@@ -69,6 +70,7 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
     Route::get('/municipiosEstado/{estado}', [MunicipiosController::class, 'getMunicipiosByEstado']);
 
     Route::prefix('pacientes')->group(function () {
+        Route::get('/list', [PacientesController::class, 'list'])->name('pacientes.list'); // <--- PON ESTA PRIMERO
         Route::get('/', [PacientesController::class, 'index'])->name('pacientes.index');
         Route::get('/create', [PacientesController::class, 'create'])->name('pacientes.create');
         Route::post('/create', [PacientesController::class, 'store'])->name('pacientes.store');
@@ -158,6 +160,8 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
+    Route::post('/asignaciones', [AsignacionPacientesAlumnosController::class, 'store'])->name('asignaciones.store');
+    Route::delete('/asignaciones/{id}', [AsignacionPacientesAlumnosController::class, 'destroy'])->name('asignaciones.destroy');
 });
 
 Route::middleware(AlumnoIsAuthenticated::class)->group(function () {

@@ -42,6 +42,10 @@
                             type="button" role="tab">Grupo</button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pacientes-tab" data-bs-toggle="tab" data-bs-target="#pacientes"
+                            type="button" role="tab">Pacientes</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link" id="acciones-tab" data-bs-toggle="tab" data-bs-target="#acciones"
                             type="button" role="tab">Acciones administrativas</button>
                     </li>
@@ -65,7 +69,8 @@
                                 </form>
                             </div>
                             <div>
-                                <a href="#" class="btn btn-outline-info btn-sm">
+                                <a href="{{ route('grupos.show', $alumno->ID_Grupo) }}"
+                                    class="btn btn-outline-info btn-sm">
                                     <i class="bi bi-people"></i> Ver Grupo
                                 </a>
                             </div>
@@ -90,6 +95,38 @@
                                     </button>
                                 </div>
                             </form>
+                        @endif
+                    </div>
+                    <div class="tab-pane fade" id="pacientes" role="tabpanel">
+                        <h4>Pacientes Asignados</h4>
+                        @if ($alumno->asignaciones->isEmpty())
+                            <div class="alert alert-warning">No hay pacientes asignados a este alumno.</div>
+                        @else
+                            <ul class="list-group mb-3">
+                                @foreach ($alumno->asignaciones as $asignacion)
+                                    @if ($asignacion->paciente)
+                                        <li class="list-group-item" id="asignacion-{{ $asignacion->ID_Asignacion }}">
+                                            <strong>{{ $asignacion->paciente->Nombre }}
+                                                {{ $asignacion->paciente->ApePaterno }}
+                                                {{ $asignacion->paciente->ApeMaterno }}</strong>
+                                            <span class="badge bg-info">ID: {{ $asignacion->paciente->ID_Paciente }}</span>
+                                            <button class="btn btn-outline-secondary btn-sm float-end"
+                                                onclick="location.href='{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}'">
+                                                <i class="bi bi-eye"></i> Ver Paciente
+                                            </button>
+                                            <form action="{{ route('asignaciones.destroy', $asignacion->ID_Asignacion) }}"
+                                                method="POST" class="d-inline form-eliminar-asignacion"
+                                                data-id="{{ $asignacion->ID_Asignacion }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-outline-danger btn-sm float-end me-2">
+                                                    <i class="bi bi-trash"></i> Eliminar Asignación
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
                         @endif
                     </div>
                     <div class="tab-pane fade" id="acciones" role="tabpanel">
@@ -135,8 +172,14 @@
 @endsection
 @section('scripts')
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         $(function() {
-            $('form[action*="destroy"]').submit(function(e) {
+            $('form[action*="destroy"]:not(.form-eliminar-asignacion)').submit(function(e) {
                 e.preventDefault();
                 Swal.fire({
                     title: '¿Eliminar alumno?',
@@ -150,6 +193,53 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.submit();
+                    }
+                });
+            });
+            $('.form-eliminar-asignacion').submit(function(e) {
+                e.preventDefault();
+                const form = this;
+                const asignacionId = $(form).data('id');
+                Swal.fire({
+                    title: '¿Eliminar asignación?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: $(form).attr('action'),
+                            type: 'POST',
+                            data: {
+                                _method: 'DELETE',
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                $('#asignacion-' + asignacionId).fadeOut(300,
+                            function() {
+                                    $(this).remove();
+                                });
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Asignación eliminada',
+                                    text: 'La asignación fue eliminada correctamente.',
+                                    confirmButtonColor: '#198754'
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: xhr.responseJSON?.message ||
+                                        'Ocurrió un error al eliminar.',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        });
                     }
                 });
             });

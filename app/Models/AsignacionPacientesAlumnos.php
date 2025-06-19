@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AsignacionPacientesAlumnos extends Model
 {
     use HasFactory;
-    protected $table = 'asignacionpacientesalumnos';
+    protected $table = 'asignacion_pacientes_alumnos';
     protected $primaryKey = 'ID_Asignacion';
     protected $fillable = ['ID_Alumno', 'ID_Paciente', 'Status'];
     public $timestamps = true;

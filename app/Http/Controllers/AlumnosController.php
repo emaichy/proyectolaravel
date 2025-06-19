@@ -6,6 +6,7 @@ use App\Models\Alumnos;
 use App\Models\Estados;
 use App\Models\Grupos;
 use App\Models\Municipios;
+use App\Models\Pacientes;
 use App\Models\Semestre;
 use App\Models\Usuarios;
 use Illuminate\Http\Request;
@@ -37,7 +38,13 @@ class AlumnosController extends Controller
 
     public function show($id)
     {
-        $alumno = Alumnos::with(['grupo'])->findOrFail($id);
+        $alumno = Alumnos::with([
+            'grupo',
+            'usuario',
+            'estado',
+            'municipio',
+            'asignaciones.paciente'
+        ])->findOrFail($id);
         if (!$alumno) {
             return redirect()->route('alumnos.index')->with('error', 'Alumno no encontrado.');
         }
@@ -45,7 +52,9 @@ class AlumnosController extends Controller
             ->orWhere('ID_Grupo', $alumno->ID_Grupo)
             ->with('semestre')
             ->get();
-        return view('alumno.show', compact('alumno', 'gruposDisponibles'));
+        $asignados = $alumno->asignaciones->pluck('ID_Paciente');
+        $pacientesDisponibles = Pacientes::whereNotIn('ID_Paciente', $asignados)->get();
+        return view('alumno.show', compact('alumno', 'gruposDisponibles', 'pacientesDisponibles'));
     }
 
     public function create()
@@ -168,7 +177,7 @@ class AlumnosController extends Controller
         $request->validate([
             'ID_Grupo' => 'required|exists:grupos,ID_Grupo',
         ]);
-        $alumno=Alumnos::find($alumno->Matricula);
+        $alumno = Alumnos::find($alumno->Matricula);
         if (!$alumno) {
             return back()->with('error', 'Alumno no encontrado.');
         }

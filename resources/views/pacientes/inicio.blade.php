@@ -12,9 +12,6 @@
                     <th>Sexo</th>
                     <th>Dirección</th>
                     <th>Tipo Paciente</th>
-                    <th>Foto</th>
-                    <th>Estado</th>
-                    <th>Municipio</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -24,18 +21,8 @@
                         <td>{{ $paciente->Nombre . ' ' . $paciente->ApePaterno . ' ' . $paciente->ApeMaterno }}</td>
                         <td>{{ $paciente->FechaNac }}</td>
                         <td>{{ $paciente->Sexo }}</td>
-                        <td>{{ $paciente->Direccion . ' ' . $paciente->NumeroExterior . ', ' . $paciente->NumeroInterior . ' ' . $paciente->CodigoPostal }}
-                        </td>
+                        <td>{{ $paciente->Direccion . ' ' . $paciente->NumeroExterior . ', #' . $paciente->NumeroInterior . ' CP.' . $paciente->CodigoPostal . ', ' . $paciente->municipio->NombreMunicipio . ', ' . $paciente->estado->NombreEstado }}</td>
                         <td>{{ $paciente->TipoPaciente }}</td>
-                        <td>
-                            @if ($paciente->Foto_Paciente)
-                                <img src="{{ asset($paciente->Foto_Paciente) }}" alt="Foto" width="50">
-                            @else
-                                Sin foto
-                            @endif
-                        </td>
-                        <td>{{ $paciente->estado->NombreEstado ?? 'N/A' }}</td>
-                        <td>{{ $paciente->municipio->NombreMunicipio ?? 'N/A' }}</td>
                         <td>
                             <a href="{{ route('pacientes.show', $paciente) }}" class="btn btn-info btn-sm">Ver</a>
                             <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-warning btn-sm">Editar</a>
