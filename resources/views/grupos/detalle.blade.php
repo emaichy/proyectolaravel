@@ -13,7 +13,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <input type="checkbox" name="maestros[]" value="{{ $maestro->ID_Maestro }}"
-                                    id="maestro_{{ $maestro->ID_Maestro }}">
+                                    id="maestro_{{ $maestro->ID_Maestro }}" class="chk-maestro">
                                 <label for="maestro_{{ $maestro->ID_Maestro }}">
                                     {{ $maestro->Nombre }} {{ $maestro->ApePaterno }} {{ $maestro->ApeMaestro }}
                                 </label>
@@ -21,7 +21,6 @@
                             <div>
                                 <a href="{{ route('maestros.show', $maestro->ID_Maestro) }}"
                                     class="btn btn-sm btn-outline-primary me-2">Ver</a>
-
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                     onclick="quitarMaestro('{{ $grupo->ID_Grupo }}', '{{ $maestro->ID_Maestro }}', this)">
                                     Quitar
@@ -30,13 +29,18 @@
                         </li>
                     @endforeach
                 </ul>
-                <button type="submit" class="btn btn-danger mt-3" id="quitar-maestros-seleccionados">
-                    Quitar maestros
+                <div class="form-text mb-1" id="msg-masivo-maestros" style="font-size: 0.9em;">
+                    Para eliminar de forma masiva, seleccione uno o más maestros.
+                </div>
+                <button type="submit" class="btn btn-danger mt-3" id="quitar-maestros-seleccionados"
+                    style="display:none;">
+                    Quitar maestros seleccionados
                 </button>
             </form>
         @else
             <p class="text-muted">Este grupo no tiene maestros asignados.</p>
         @endif
+
         <h5 class="fw-bold mt-4">Alumnos del grupo:</h5>
         @if ($grupo->alumnos->count())
             <form method="POST" action="{{ route('grupos.desasignar-alumnos', $grupo->ID_Grupo) }}">
@@ -47,7 +51,7 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <input type="checkbox" name="alumnos[]" value="{{ $alumno->Matricula }}"
-                                    id="alumno_{{ $alumno->Matricula }}">
+                                    id="alumno_{{ $alumno->Matricula }}" class="chk-alumno">
                                 <label for="alumno_{{ $alumno->Matricula }}">
                                     {{ $alumno->Nombre }} {{ $alumno->ApePaterno }} {{ $alumno->ApeMaterno }}
                                 </label>
@@ -55,7 +59,6 @@
                             <div>
                                 <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
                                     class="btn btn-sm btn-outline-primary me-2">Ver</a>
-
                                 <button type="button" class="btn btn-sm btn-outline-danger"
                                     onclick="quitarAlumno('{{ $grupo->ID_Grupo }}', '{{ $alumno->Matricula }}', this)">
                                     Quitar
@@ -64,8 +67,11 @@
                         </li>
                     @endforeach
                 </ul>
-                <button type="submit" class="btn btn-danger mt-3" id="quitar-seleccionados">
-                    Quitar alumnos
+                <div class="form-text mb-1" id="msg-masivo-alumnos" style="font-size: 0.9em;">
+                    Para eliminar de forma masiva, seleccione uno o más alumnos.
+                </div>
+                <button type="submit" class="btn btn-danger mt-3" id="quitar-seleccionados" style="display:none;">
+                    Quitar alumnos seleccionados
                 </button>
             </form>
         @else
@@ -84,6 +90,7 @@
 
             checkbox.addEventListener('change', () => {
                 item.classList.toggle('active', checkbox.checked);
+                updateMasivoButtons();
             });
 
             item.addEventListener('click', function(e) {
@@ -101,6 +108,25 @@
                 checkbox.dispatchEvent(new Event('change'));
             });
         });
+
+        // Mostrar/ocultar el botón de quitar masivo según selección
+        function updateMasivoButtons() {
+            // Maestros
+            const maestroChecks = document.querySelectorAll('.chk-maestro');
+            const maestroBtn = document.getElementById('quitar-maestros-seleccionados');
+            if (maestroBtn) {
+                const anyChecked = Array.from(maestroChecks).some(cb => cb.checked);
+                maestroBtn.style.display = anyChecked ? '' : 'none';
+            }
+            // Alumnos
+            const alumnoChecks = document.querySelectorAll('.chk-alumno');
+            const alumnoBtn = document.getElementById('quitar-seleccionados');
+            if (alumnoBtn) {
+                const anyChecked = Array.from(alumnoChecks).some(cb => cb.checked);
+                alumnoBtn.style.display = anyChecked ? '' : 'none';
+            }
+        }
+        updateMasivoButtons();
 
         // Quitar Maestros Seleccionados
         const quitarMaestrosBtn = document.getElementById('quitar-maestros-seleccionados');
@@ -144,6 +170,7 @@
                                 Swal.fire('Desasignados',
                                     'Los maestros fueron desasignados.', 'success');
                                 checkboxes.forEach(cb => cb.closest('li').remove());
+                                updateMasivoButtons();
                             })
                             .catch(() => {
                                 Swal.fire('Error', 'Ocurrió un error al desasignar.',
@@ -196,6 +223,7 @@
                                 Swal.fire('Desasignados',
                                     'Los alumnos fueron desasignados.', 'success');
                                 checkboxes.forEach(cb => cb.closest('li').remove());
+                                updateMasivoButtons();
                             })
                             .catch(() => {
                                 Swal.fire('Error', 'Ocurrió un error al desasignar.',
@@ -233,6 +261,7 @@
                     .then(() => {
                         Swal.fire('Desasignado', 'El maestro fue desasignado correctamente.', 'success');
                         btn.closest('li').remove();
+                        updateMasivoButtons();
                     })
                     .catch(() => {
                         Swal.fire('Error', 'Ocurrió un error al desasignar el maestro.', 'error');
@@ -267,6 +296,7 @@
                     .then(() => {
                         Swal.fire('Desasignado', 'El alumno fue desasignado correctamente.', 'success');
                         btn.closest('li').remove();
+                        updateMasivoButtons();
                     })
                     .catch(() => {
                         Swal.fire('Error', 'Ocurrió un error al desasignar el alumno.', 'error');

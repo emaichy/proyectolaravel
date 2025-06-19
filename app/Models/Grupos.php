@@ -17,7 +17,8 @@ class Grupos extends Model
     {
         return $this->belongsToMany(Maestros::class, 'grupo_maestros', 'ID_Grupo', 'ID_Maestro')
             ->withPivot('ID_Asignacion', 'Status')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->orderBy('Nombre', 'asc');
     }
 
     public function semestre()
@@ -27,6 +28,7 @@ class Grupos extends Model
 
     public function alumnos()
     {
-        return $this->hasMany(Alumnos::class, 'ID_Grupo', 'ID_Grupo');
+        return $this->hasMany(Alumnos::class, 'ID_Grupo', 'ID_Grupo')
+            ->orderBy('Nombre', 'asc');
     }
 }

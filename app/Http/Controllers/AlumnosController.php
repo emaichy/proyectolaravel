@@ -24,7 +24,7 @@ class AlumnosController extends Controller
                 $q->where('ID_Semestre', $request->semestre);
             });
         }
-        $alumnos = $query->with(['grupo'])->paginate(10);
+        $alumnos = $query->with(['grupo'])->orderBy('Nombre', 'asc')->paginate(10);
         if ($alumnos->isEmpty() && $alumnos->currentPage() > 1) {
             return redirect()->route('alumnos.index', array_merge($request->except('page'), [
                 'page' => $alumnos->lastPage()

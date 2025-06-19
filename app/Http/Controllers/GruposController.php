@@ -11,7 +11,7 @@ class GruposController extends Controller
 {
     public function index()
     {
-        $grupos = Grupos::where('Status', 1)->paginate(10);
+        $grupos = Grupos::where('Status', 1)->paginate(12);
         return view('grupos.index', compact('grupos'));
     }
 
@@ -35,9 +35,12 @@ class GruposController extends Controller
         $grupo = Grupos::with(['alumnos', 'maestros'])->findOrFail($id);
         $todosLosGrupos = Grupos::where('Status', 1)->get();
         $alumnosDisponibles = Alumnos::where('Status', 1)
+            ->orderBy('Nombre', 'asc')
             ->whereNull('ID_Grupo')
             ->get();
-        $maestrosDisponibles = Maestros::where('Status', 1)->get();
+        $maestrosDisponibles = Maestros::where('Status', 1)
+            ->orderBy('Nombre', 'asc')
+            ->get();
         return view('grupos.show', compact('grupo', 'todosLosGrupos', 'alumnosDisponibles', 'maestrosDisponibles'));
     }
 
@@ -61,7 +64,13 @@ class GruposController extends Controller
     public function destroy($id)
     {
         $grupo = Grupos::findOrFail($id);
-        $grupo->delete();
+        $grupo->Status = 0;
+        $grupo->save();
+        Alumnos::where('ID_Grupo', $grupo->ID_Grupo)->update(['ID_Grupo' => null]);
+        $grupo->maestros()->detach();
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->route('grupos.index')->with('success', 'Grupo eliminado correctamente.');
     }
 
