@@ -17,16 +17,16 @@ class Usuarios extends Authenticatable
     public $timestamps = true;
     public function administradores()
     {
-        return $this->hasMany(Administrativos::class, 'ID_Usuario');
+        return $this->hasOne(Administrativos::class, 'ID_Usuario');
     }
 
     public function maestros()
     {
-        return $this->hasMany(Maestros::class, 'ID_Usuario');
+        return $this->hasOne(Maestros::class, 'ID_Usuario');
     }
 
     public function alumnos()
     {
-        return $this->hasMany(Alumnos::class, 'ID_Usuario');
+        return $this->hasOne(Alumnos::class, 'ID_Usuario');
     }
 }

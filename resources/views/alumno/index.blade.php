@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     @if (session('success'))
@@ -108,12 +108,11 @@
                                     class="btn btn-sm btn-info">Ver</a>
                                 <a href="{{ route('alumnos.edit', $alumno->Matricula) }}"
                                     class="btn btn-sm btn-primary">Editar</a>
-                                <form action="{{ route('alumnos.destroy', $alumno->Matricula) }}" method="POST"
-                                    class="d-inline form-eliminar" data-id="{{ $alumno->Matricula }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-danger btn-eliminar-alumno"
+                                    data-id="{{ $alumno->Matricula }}"
+                                    data-url="{{ route('alumnos.destroy', $alumno->Matricula) }}">
+                                    Eliminar
+                                </button>
                             </td>
                         </tr>
                     @endforeach
@@ -158,14 +157,13 @@
             }
         });
         document.addEventListener('DOMContentLoaded', function() {
-            const forms = document.querySelectorAll('.form-eliminar');
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
+            document.querySelectorAll('.btn-eliminar-alumno').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
                     e.preventDefault();
-
-                    const alumnoId = form.getAttribute('data-id');
-                    const url = form.getAttribute('action');
-                    const csrfToken = form.querySelector('input[name="_token"]').value;
+                    const alumnoId = btn.getAttribute('data-id');
+                    const url = btn.getAttribute('data-url');
+                    const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content');
 
                     Swal.fire({
                         title: '¿Estás seguro?',
@@ -182,7 +180,8 @@
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrfToken,
+                                    'X-CSRF-TOKEN': csrf,
+                                    'X-Requested-With': 'XMLHttpRequest',
                                     'Accept': 'application/json'
                                 },
                                 body: JSON.stringify({
@@ -196,9 +195,9 @@
                                         text: 'El alumno fue eliminado correctamente.',
                                         confirmButtonColor: '#198754'
                                     });
-                                    const fila = document.getElementById(
-                                        `row-${alumnoId}`);
-                                    if (fila) fila.remove();
+                                    const row = document.getElementById('row-' +
+                                        alumnoId);
+                                    if (row) row.remove();
                                 } else {
                                     return response.json().then(data => {
                                         throw new Error(data.message ||
@@ -248,5 +247,4 @@
             });
         });
     </script>
-
 @endsection

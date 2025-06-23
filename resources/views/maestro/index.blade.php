@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container">
@@ -37,7 +37,8 @@
                         </td>
                         <td>
                             <a href="{{ route('maestros.show', $maestro->ID_Maestro) }}" class="btn btn-info btn-sm">Ver</a>
-                            <a href="{{route('maestros.edit', $maestro->ID_Maestro)}}" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{{ route('maestros.edit', $maestro->ID_Maestro) }}"
+                                class="btn btn-warning btn-sm">Editar</a>
                             <form action="{{ route('maestros.destroy', $maestro->ID_Maestro) }}" method="POST"
                                 style="display:inline;" class="delete-form">
                                 @csrf

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Detalle del Maestro')
 
@@ -44,7 +44,7 @@
                     </li>
                 </ul>
                 <div class="tab-content p-3 border border-top-0 rounded-bottom" id="maestroTabsContent">
-                    <div class="tab-pane fade show active" id="alumnos" role="tabpanel">
+                    <div class="tab-pane fade show active mb-2" id="alumnos" role="tabpanel">
                         <h4 class="mb-3">Alumnos bajo su tutoría</h4>
                         @if ($maestro->grupos->isEmpty())
                             <div class="alert alert-info">Este maestro no tiene grupos asignados.</div>
@@ -86,7 +86,7 @@
                                                                         <td>{{ $alumno->Matricula }}</td>
                                                                         <td>{{ $alumno->promedio ?? 'N/A' }}</td>
                                                                         <td>
-                                                                            <a href="{{--{{ route('alumnos.show', $alumno->ID_Alumno) }}--}}"
+                                                                            <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
                                                                                 class="btn btn-sm btn-info">
                                                                                 <i class="bi bi-eye"></i> Ver
                                                                             </a>
@@ -117,15 +117,6 @@
                             <a href="{{ route('maestros.edit', $maestro->ID_Maestro) }}" class="btn btn-warning me-2">
                                 <i class="bi bi-pencil-square"></i> Editar
                             </a>
-                            <form action="{{ route('maestros.destroy', $maestro->ID_Maestro) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('¿Estás seguro de eliminar este maestro?')">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>

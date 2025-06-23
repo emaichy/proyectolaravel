@@ -10,7 +10,7 @@ class EstadosController extends Controller
     public function index()
     {
         $estados = Estados::where('Status', 1)->paginate(10);
-        return view('estados.inicio', compact('estados'));
+        return view('estados.index', compact('estados'));
     }
 
     public function show(Estados $estado)

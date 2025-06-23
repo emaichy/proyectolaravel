@@ -10,11 +10,11 @@ class UsuariosController extends Controller
 {
     public function index()
     {
-        $usuarios=Usuarios::where('Status', 1)->get();
+        $usuarios = Usuarios::where('Status', 1)->paginate(10);
         if ($usuarios->isEmpty()) {
             return redirect()->route('usuarios.create')->with('info', 'No hay usuarios registrados. Por favor, crea un nuevo usuario.');
-        }        
-        return view('usuarios.inicio', compact('usuarios'));
+        }
+        return view('usuarios.index', compact('usuarios'));
     }
 
     public function create()
@@ -24,7 +24,7 @@ class UsuariosController extends Controller
 
     public function store(Request $request)
     {
-        $usuario= new Usuarios();
+        $usuario = new Usuarios();
         $usuario->Correo = $request->Correo;
         $usuario->password = Hash::make($request->password);
         $usuario->save();
@@ -52,7 +52,7 @@ class UsuariosController extends Controller
     public function update(Request $request, Usuarios $usuario)
     {
         if (!$usuario) {
-            return redirect()->route('usuarios.index')->with('error', 'Usuario no encontrado.');    
+            return redirect()->route('usuarios.index')->with('error', 'Usuario no encontrado.');
         }
         $usuario->Correo = $request->Correo;
         if ($request->has('password') && $request->password != '') {
@@ -67,10 +67,26 @@ class UsuariosController extends Controller
     {
         $usuario = Usuarios::find($id);
         if (!$usuario) {
-            return redirect()->route('usuarios.index')->with('error', 'Usuario no encontrado.');
+            return response()->json(['success' => false, 'message' => 'Usuario no encontrado.']);
         }
-
-        $usuario->update(['Status'=>0]);
-        return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado exitosamente!');
+        $usuario->update(['Status' => 0]);
+        switch ($usuario->Rol) {
+            case 'Administrativo':
+                if ($usuario->administradores) {
+                    $usuario->administradores->update(['Status' => 0]);
+                }
+                break;
+            case 'Maestro':
+                if ($usuario->maestros) {
+                    $usuario->maestros->update(['Status' => 0]);
+                }
+                break;
+            case 'Alumno':
+                if ($usuario->alumnos) {
+                    $usuario->alumnos->update(['Status' => 0]);
+                }
+                break;
+        }
+        return response()->json(['success' => true, 'message' => 'Usuario eliminado exitosamente!']);
     }
 }

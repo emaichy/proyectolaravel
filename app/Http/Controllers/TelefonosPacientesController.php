@@ -18,7 +18,7 @@ class TelefonosPacientesController extends Controller
         $telefonos = $query->with('paciente')->paginate(10);
         $pacientes = Pacientes::where('Status', 1)->get();
 
-        return view('telefonos.inicio', compact('telefonos', 'pacientes'));
+        return view('telefonos.index', compact('telefonos', 'pacientes'));
     }
 
     public function show($id)

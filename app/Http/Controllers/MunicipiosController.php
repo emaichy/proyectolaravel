@@ -13,7 +13,7 @@ class MunicipiosController extends Controller
             ->where('Status', 1)
             ->orderBy('NombreMunicipio', 'asc')
             ->paginate(10);
-        return view('municipios.inicio', compact('municipios'));
+        return view('municipios.index', compact('municipios'));
     }
 
     public function show($id)

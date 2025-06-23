@@ -133,7 +133,6 @@ class AlumnosController extends Controller
             'Pais' => $request->Pais,
             'Curp' => $request->Curp,
             'ID_Usuario' => $usuario->ID_Usuario,
-            'ID_Grupo' => $request->ID_Grupo,
             'ID_Estado' => $request->ID_Estado,
             'ID_Municipio' => $request->ID_Municipio,
         ]);

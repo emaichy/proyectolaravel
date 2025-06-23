@@ -16,7 +16,7 @@ class PacientesController extends Controller
     public function index()
     {
         $pacientes = Pacientes::where('Status', 1)->paginate(10);
-        return view('pacientes.inicio', [
+        return view('pacientes.index', [
             'pacientes' => $pacientes,
             'info' => $pacientes->isEmpty() ? 'No hay pacientes registrados. Por favor, crea uno nuevo.' : null
         ]);

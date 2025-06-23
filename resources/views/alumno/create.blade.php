@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container">
@@ -13,10 +13,6 @@
                 <div class="col-md-4">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="Matricula" class="form-label">Matrícula</label>
-                    <input type="text" class="form-control" id="Matricula" name="Matricula" required>
                 </div>
             </div>
             <div class="row mb-3">
