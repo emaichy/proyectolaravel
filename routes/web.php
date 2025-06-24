@@ -16,6 +16,7 @@ use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
 use App\Http\Middleware\AlumnoIsAuthenticated;
 use App\Http\Middleware\MaestroIsAuthenticated;
+use App\Http\Middleware\MaestroOrAdmin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -150,13 +151,11 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/edit/{id}', [GruposController::class, 'edit'])->name('grupos.edit');
         Route::put('/edit/{id}', [GruposController::class, 'update'])->name('grupos.update');
         Route::delete('/delete/{id}', [GruposController::class, 'destroy'])->name('grupos.destroy');
-        Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
         Route::post('/{grupo}/asignar-alumnos', [GruposController::class, 'asignarAlumnos'])->name('grupos.asignar-alumnos');
         Route::post('/{grupo}/asignar-maestros', [GruposController::class, 'asignarMaestros'])->name('grupos.asignar-maestros');
         Route::delete('/{grupo}/desasignar-alumnos', [GruposController::class, 'desasignarAlumnos'])->name('grupos.desasignar-alumnos');
         Route::delete('/{grupo}/desasignar-alumno/{alumno}', [GruposController::class, 'desasignarAlumno'])->name('grupos.desasignar-alumno');
         Route::delete('/{grupo}/desasignar-maestros', [GruposController::class, 'desasignarMaestros'])->name('grupos.desasignar-maestros');
-        Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
@@ -174,6 +173,17 @@ Route::middleware(MaestroIsAuthenticated::class)->group(function () {
     Route::get('/maestro', function () {
         return view('maestro.home');
     })->name('maestro.home');
+    Route::get('/perfil/{id}', [MaestrosController::class, 'perfil'])->name('maestro.perfil');
+    Route::put('/perfil/update/{id}', [MaestrosController::class, 'updatePerfil'])->name('maestro.perfil.update');
+    Route::get('/grupos/{id}', [GruposController::class, 'gruposByMaestro'])->name('maestro.grupos.index');
+    Route::get('/alumnos/{id}', [AlumnosController::class, 'alumnosByMaestro'])->name('maestro.alumnos.index');
+});
+
+Route::middleware(MaestroOrAdmin::class)->group(function () {
+    Route::prefix('grupos_maestros')->group(function () {
+        Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
+        Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');
+    });
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

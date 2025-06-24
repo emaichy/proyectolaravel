@@ -33,7 +33,17 @@ class GruposController extends Controller
     public function show($id)
     {
         $grupo = Grupos::with(['alumnos', 'maestros'])->findOrFail($id);
-        $todosLosGrupos = Grupos::where('Status', 1)->get();
+        $user = auth()->user();
+        $layout = ($user->Rol === 'Maestro') ? 'layouts.maestro' : 'layouts.admin';
+        if ($user->Rol === 'Maestro' && $user->maestro) {
+            $todosLosGrupos = $user->maestro->grupos()->wherePivot('Status', 1)->get();
+            if (!$todosLosGrupos->contains('ID_Grupo', $grupo->ID_Grupo)) {
+                return redirect()->route('grupos.show', $todosLosGrupos->first()->ID_Grupo ?? '/')
+                    ->with('error', 'No tienes permiso para acceder a este grupo.');
+            }
+        } else {
+            $todosLosGrupos = Grupos::where('Status', 1)->get();
+        }
         $alumnosDisponibles = Alumnos::where('Status', 1)
             ->orderBy('Nombre', 'asc')
             ->whereNull('ID_Grupo')
@@ -41,7 +51,7 @@ class GruposController extends Controller
         $maestrosDisponibles = Maestros::where('Status', 1)
             ->orderBy('Nombre', 'asc')
             ->get();
-        return view('grupos.show', compact('grupo', 'todosLosGrupos', 'alumnosDisponibles', 'maestrosDisponibles'));
+        return view('grupos.show', compact('grupo', 'todosLosGrupos', 'alumnosDisponibles', 'maestrosDisponibles', 'layout'));
     }
 
     public function edit($id)
@@ -167,5 +177,12 @@ class GruposController extends Controller
         return response()->json([
             'html' => view('grupos.detalle', compact('grupo', 'alumnosDisponibles'))->render()
         ]);
+    }
+
+    public function gruposByMaestro($id)
+    {
+        $maestro = Maestros::findOrFail($id);
+        $grupos = $maestro->grupos()->with('semestre')->get();
+        return view('maestro.grupos', compact('grupos', 'maestro'))->render();
     }
 }

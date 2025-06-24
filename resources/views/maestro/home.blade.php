@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.maestro')
 
 @section('title', 'Inicio - Panel de Maestros')
 
@@ -10,14 +10,13 @@
                     <div class="card-body text-center">
                         <img src="{{ asset('images/teacher_welcome.svg') }}" alt="Bienvenido Maestro" class="mb-4"
                             style="max-width:120px;">
-                        <h1 class="display-5 mb-3">¡Bienvenido, Maestro!</h1>
-                        <a href="{{ route('logout') }}" class="btn btn-outline-danger btn-sm mb-3"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Cerrar sesión
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
+                        <h1 class="display-5 mb-3">
+                            @if (auth()->user()->maestro->Genero == 'Masculino')
+                                ¡Bienvenido, {{ auth()->user()->maestro->Nombre }}!
+                            @else
+                                ¡Bienvenida, {{ auth()->user()->maestro->Nombre }}!
+                            @endif
+                        </h1>
                         <p class="lead mb-4">
                             Este es tu panel principal. Aquí podrás gestionar tus clases, consultar el historial de tus
                             alumnos y acceder a recursos educativos.
@@ -52,4 +51,24 @@
             </div>
         </div>
     </div>
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
 @endsection

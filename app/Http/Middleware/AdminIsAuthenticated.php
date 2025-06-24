@@ -25,7 +25,6 @@ class AdminIsAuthenticated
             } elseif(Auth::user()->Rol === 'Alumno') {
                 return redirect()->route('alumno.home')->with('error', 'No tienes permisos para acceder a esta página.');
             }
-            // Si el usuario no es Administrativo, Maestro o Alumno, redirigir a la página de inicio del Administrativo
             return redirect()->route('admin.home')->with('error', 'No tienes permisos para acceder a esta página.');
         }
         return $next($request);

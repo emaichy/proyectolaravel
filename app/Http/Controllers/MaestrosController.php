@@ -149,4 +149,28 @@ class MaestrosController extends Controller
         }
         return back()->with('success', 'Grupo desasignado correctamente');
     }
+
+    public function perfil($id)
+    {
+        $maestro = Maestros::find($id);
+        if (!$maestro) {
+            return redirect()->route('maestros.index')->with('error', 'Maestro no encontrado.');
+        }
+        $estados = Estados::where('Status', 1)->get();
+        $municipios = collect();
+        if ($estados->isNotEmpty()) {
+            $municipios = $estados->first()->municipios()->where('Status', 1)->get();
+        }
+        return view('maestro.perfil', compact('maestro', 'estados', 'municipios'));
+    }
+
+    public function updatePerfil(Request $request, $id)
+    {
+        $maestro = Maestros::find($id);
+        if (!$maestro) {
+            return redirect()->route('maestros.index')->with('error', 'Maestro no encontrado.');
+        }
+        $maestro->update($request->all());
+        return redirect()->route('maestro.perfil', $maestro->id)->with('success', 'Perfil actualizado correctamente.');
+    }
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Panel Administrativo | IUFIM')</title>
+    <title>@yield('title', 'Panel de Maestros | IUFIM')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -83,45 +83,40 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar"
-                aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#maestrosNavbar"
+                aria-controls="maestrosNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse admin-navbar-collapse" id="adminNavbar">
+            <div class="collapse navbar-collapse admin-navbar-collapse" id="maestrosNavbar">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('admin') ? 'active' : '' }}" href="{{ url('/admin') }}">
+                        <a class="nav-link {{ request()->is('maestro') ? 'active' : '' }}"
+                            href="{{ url('/maestro') }}">
                             <i class="fa-solid fa-house"></i> Inicio
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('usuarios*') ? 'active' : '' }}"
-                            href="{{ url('/usuarios') }}">
-                            <i class="fa-solid fa-users"></i> Usuarios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('alumnos*') ? 'active' : '' }}"
-                            href="{{ url('/alumnos') }}">
+                        <a class="nav-link {{ request()->is('maestros/alumnos*') ? 'active' : '' }}"
+                            href="{{ url('/maestros/alumnos') }}">
                             <i class="fa-solid fa-user-graduate"></i> Alumnos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('maestros*') ? 'active' : '' }}"
-                            href="{{ url('/maestros') }}">
-                            <i class="fa-solid fa-chalkboard-teacher"></i> Maestros
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {{ request()->is('grupos*') ? 'active' : '' }}"
-                            href="{{ url('/grupos') }}">
+                            href="{{ url('grupos/' . $maestro->ID_Maestro) }}">
                             <i class="fa-solid fa-layer-group"></i> Grupos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('pacientes*') ? 'active' : '' }}"
-                            href="{{ url('/pacientes') }}">
-                            <i class="fa-solid fa-user-injured"></i> Pacientes
+                        <a class="nav-link {{ request()->is($maestro->ID_Maestro . '/clases*') ? 'active' : '' }}"
+                            href="{{ url('/' . $maestro->ID_Maestro . '/clases') }}">
+                            <i class="fa-solid fa-chalkboard"></i> Clases
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('maestros/tareas*') ? 'active' : '' }}"
+                            href="{{ url('/maestros/tareas') }}">
+                            <i class="fa-solid fa-tasks"></i> Tareas
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -130,18 +125,12 @@
                             <i class="fa-solid fa-ellipsis-h"></i> Más
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="otrasOpcionesDropdown">
-                            <li><a class="dropdown-item" href="{{ url('/otras-opciones') }}">Otras Opciones</a></li>
+                            <li><a class="dropdown-item"
+                                    href="{{ url('/perfil/' . auth()->user()->maestro->ID_Maestro) }}"><i
+                                        class="fa-solid fa-user"></i> Mi Perfil</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->is('configuracion*') ? 'active' : '' }}"
-                                    href="{{ url('/configuracion') }}">
-                                    <i class="fa-solid fa-cogs"></i> Configuración
-                                </a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
                             <li>
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                     @csrf
@@ -163,7 +152,7 @@
 
     <footer class="py-3 bg-light mt-4">
         <div class="container">
-            <p class="text-center mb-0">&copy; {{ date('Y') }} Panel Administrativo IUFIM</p>
+            <p class="text-center mb-0">&copy; {{ date('Y') }} Panel de Maestros IUFIM</p>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

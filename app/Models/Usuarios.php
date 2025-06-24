@@ -20,9 +20,9 @@ class Usuarios extends Authenticatable
         return $this->hasOne(Administrativos::class, 'ID_Usuario');
     }
 
-    public function maestros()
+    public function maestro()
     {
-        return $this->hasOne(Maestros::class, 'ID_Usuario');
+        return $this->hasOne(Maestros::class, 'ID_Usuario', 'ID_Usuario');
     }
 
     public function alumnos()
