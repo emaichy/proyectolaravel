@@ -10,7 +10,7 @@ class AsignacionPacientesAlumnos extends Model
     use HasFactory;
     protected $table = 'asignacion_pacientes_alumnos';
     protected $primaryKey = 'ID_Asignacion';
-    protected $fillable = ['ID_Alumno', 'ID_Paciente', 'Status'];
+    protected $fillable = ['ID_Alumno', 'ID_Paciente','ID_Expediente', 'Status'];
     public $timestamps = true;
     
     public function alumno()
@@ -21,6 +21,11 @@ class AsignacionPacientesAlumnos extends Model
     public function paciente()
     {
         return $this->belongsTo(Pacientes::class, 'ID_Paciente');
+    }
+
+    public function expediente()
+    {
+        return $this->belongsTo(Expediente::class, 'ID_Expediente');
     }
 }
 

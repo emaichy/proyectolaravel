@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id('ID_Asignacion');
             $table->unsignedBigInteger('ID_Alumno');
             $table->unsignedBigInteger('ID_Paciente');
+            $table->unsignedBigInteger('ID_Expediente')->nullable();
             $table->integer('Status')->default(1);
             $table->timestamps();
             $table->foreign('ID_Alumno')->references('Matricula')->on('alumnos')->onDelete('cascade');
             $table->foreign('ID_Paciente')->references('ID_Paciente')->on('pacientes')->onDelete('cascade');
+            $table->foreign('ID_Expediente')->references('ID_Expediente')->on('expedientes')->onDelete('cascade');
         });
     }
 

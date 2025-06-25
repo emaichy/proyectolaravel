@@ -22,19 +22,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-            $maestro = null;
-            $alumno = null;
-
+            $maestroSesion = null;
+            $alumnoSesion = null;
             if (Auth::check()) {
                 if (Auth::user()->maestro) {
-                    $maestro = Auth::user()->maestro;
+                    $maestroSesion = Auth::user()->maestro;
                 }
                 if (Auth::user()->alumno) {
-                    $alumno = Auth::user()->alumno;
+                    $alumnoSesion = Auth::user()->alumno;
                 }
             }
-
-            $view->with('maestro', $maestro)->with('alumno', $alumno);
+            $view->with('maestroSesion', $maestroSesion)->with('alumnoSesion', $alumnoSesion);
         });
     }
 }

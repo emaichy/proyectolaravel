@@ -15,6 +15,7 @@ use App\Http\Controllers\TelefonosPacientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
 use App\Http\Middleware\AlumnoIsAuthenticated;
+use App\Http\Middleware\IsAuthenticated;
 use App\Http\Middleware\MaestroIsAuthenticated;
 use App\Http\Middleware\MaestroOrAdmin;
 use Illuminate\Support\Facades\Route;
@@ -71,13 +72,12 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
     Route::get('/municipiosEstado/{estado}', [MunicipiosController::class, 'getMunicipiosByEstado']);
 
     Route::prefix('pacientes')->group(function () {
-        Route::get('/list', [PacientesController::class, 'list'])->name('pacientes.list'); // <--- PON ESTA PRIMERO
+        Route::get('/list', [PacientesController::class, 'list'])->name('pacientes.list');
         Route::get('/', [PacientesController::class, 'index'])->name('pacientes.index');
         Route::get('/create', [PacientesController::class, 'create'])->name('pacientes.create');
         Route::post('/create', [PacientesController::class, 'store'])->name('pacientes.store');
         Route::get('/edit/{paciente}', [PacientesController::class, 'edit'])->name('pacientes.edit');
         Route::put('/edit/{paciente}', [PacientesController::class, 'update'])->name('pacientes.update');
-        Route::get('/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
         Route::delete('/delete/{id}', [PacientesController::class, 'destroy'])->name('pacientes.destroy');
     });
 
@@ -138,7 +138,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/edit/{id}', [AlumnosController::class, 'edit'])->name('alumnos.edit');
         Route::put('/edit/{id}', [AlumnosController::class, 'update'])->name('alumnos.update');
         Route::delete('/delete/{id}', [AlumnosController::class, 'destroy'])->name('alumnos.destroy');
-        Route::get('/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
         Route::get('/{alumno}/grupos', [AlumnosController::class, 'gestionarGrupos'])->name('alumnos.grupos');
         Route::post('/{alumno}/asignar-grupo', [AlumnosController::class, 'asignarGrupo'])->name('alumnos.asignar-grupo');
         Route::delete('/{alumno}/desasignar-grupo/{grupo}', [AlumnosController::class, 'desasignarGrupo'])->name('alumnos.desasignar-grupo');
@@ -176,7 +175,7 @@ Route::middleware(MaestroIsAuthenticated::class)->group(function () {
     Route::get('/perfil/{id}', [MaestrosController::class, 'perfil'])->name('maestro.perfil');
     Route::put('/perfil/update/{id}', [MaestrosController::class, 'updatePerfil'])->name('maestro.perfil.update');
     Route::get('/grupos/{id}', [GruposController::class, 'gruposByMaestro'])->name('maestro.grupos.index');
-    Route::get('/alumnos/{id}', [AlumnosController::class, 'alumnosByMaestro'])->name('maestro.alumnos.index');
+    Route::get('/alumnos_maestro/{id}', [AlumnosController::class, 'alumnosByMaestro'])->name('maestro.alumnos.index');
 });
 
 Route::middleware(MaestroOrAdmin::class)->group(function () {
@@ -184,6 +183,11 @@ Route::middleware(MaestroOrAdmin::class)->group(function () {
         Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
         Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');
     });
+    Route::get('alumnos/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
+});
+
+Route::middleware(IsAuthenticated::class)->group(function () {
+    Route::get('alumno/{alumno}/paciente/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

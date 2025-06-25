@@ -90,26 +90,25 @@
             <div class="collapse navbar-collapse admin-navbar-collapse" id="maestrosNavbar">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('maestro') ? 'active' : '' }}"
-                            href="{{ url('/maestro') }}">
+                        <a class="nav-link {{ request()->is('maestro') ? 'active' : '' }}" href="{{ url('/maestro') }}">
                             <i class="fa-solid fa-house"></i> Inicio
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('maestros/alumnos*') ? 'active' : '' }}"
-                            href="{{ url('/maestros/alumnos') }}">
+                        <a class="nav-link {{ request()->is('alumno*') ? 'active' : '' }}"
+                            href="{{ url('alumnos_maestro/' . $maestroSesion->ID_Maestro) }}">
                             <i class="fa-solid fa-user-graduate"></i> Alumnos
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('grupos*') ? 'active' : '' }}"
-                            href="{{ url('grupos/' . $maestro->ID_Maestro) }}">
+                            href="{{ url('grupos/' . $maestroSesion->ID_Maestro) }}">
                             <i class="fa-solid fa-layer-group"></i> Grupos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is($maestro->ID_Maestro . '/clases*') ? 'active' : '' }}"
-                            href="{{ url('/' . $maestro->ID_Maestro . '/clases') }}">
+                        <a class="nav-link {{ request()->is($maestroSesion->ID_Maestro . '/clases*') ? 'active' : '' }}"
+                            href="{{ url('/' . $maestroSesion->ID_Maestro . '/clases') }}">
                             <i class="fa-solid fa-chalkboard"></i> Clases
                         </a>
                     </li>

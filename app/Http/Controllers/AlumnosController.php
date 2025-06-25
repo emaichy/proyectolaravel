@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alumnos;
 use App\Models\Estados;
 use App\Models\Grupos;
+use App\Models\Maestros;
 use App\Models\Municipios;
 use App\Models\Pacientes;
 use App\Models\Semestre;
@@ -45,16 +46,15 @@ class AlumnosController extends Controller
             'municipio',
             'asignaciones.paciente'
         ])->findOrFail($id);
-        if (!$alumno) {
-            return redirect()->route('alumnos.index')->with('error', 'Alumno no encontrado.');
-        }
         $gruposDisponibles = Grupos::whereDoesntHave('alumnos')
             ->orWhere('ID_Grupo', $alumno->ID_Grupo)
             ->with('semestre')
             ->get();
         $asignados = $alumno->asignaciones->pluck('ID_Paciente');
         $pacientesDisponibles = Pacientes::whereNotIn('ID_Paciente', $asignados)->get();
-        return view('alumno.show', compact('alumno', 'gruposDisponibles', 'pacientesDisponibles'));
+        $user = auth()->user();
+        $layout = ($user->Rol === 'Maestro') ? 'layouts.maestro' : 'layouts.admin';
+        return view('alumno.show', compact('alumno', 'gruposDisponibles', 'pacientesDisponibles', 'layout'));
     }
 
     public function create()
@@ -195,5 +195,28 @@ class AlumnosController extends Controller
         $alumno->ID_Grupo = null;
         $alumno->save();
         return back()->with('success', 'Grupo desasignado exitosamente del alumno.');
+    }
+
+    public function alumnosByMaestro($id)
+    {
+        $user = auth()->user();
+        if ($user->Rol === 'Maestro') {
+            if (!$user->maestro || $user->maestro->ID_Maestro != $id) {
+                return redirect()->route('maestro.home')
+                    ->with('error', 'No tienes permiso para ver los alumnos de este maestro.');
+            }
+        }
+        $maestro = Maestros::findOrFail($id);
+        $alumnos = Alumnos::whereIn('ID_Grupo', $maestro->grupos()->pluck('grupos.ID_Grupo'))
+            ->where('Status', 1)
+            ->orderBy('Nombre', 'asc')
+            ->paginate(10);
+
+        if ($alumnos->isEmpty()) {
+            return redirect()->route('alumnos.index')
+                ->with('error', 'No hay alumnos asignados a este maestro.');
+        }
+
+        return view('maestro.alumnos', compact('alumnos'));
     }
 }

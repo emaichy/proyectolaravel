@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumnos;
 use App\Models\AsignacionPacientesAlumnos;
 use App\Models\DocumentosPacientes;
 use App\Models\Estados;
@@ -22,18 +23,43 @@ class PacientesController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($alumnoId, $pacienteId)
     {
-        $paciente = Pacientes::find($id);
+        $user = auth()->user();
+        if ($user->Rol === 'Alumno') {
+            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+            if (!$alumno || $alumno->Matricula != $alumnoId) {
+                return back()->with('error', 'No tienes permisos para ver este paciente.');
+            }
+        } else {
+            $alumno = Alumnos::where('Matricula', $alumnoId)->first();
+            if (!$alumno) {
+                return back()->with('error', 'Alumno no encontrado.');
+            }
+        }
+        $asignacion = $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->first();
+        if (!$asignacion) {
+            return back()->with('error', 'No tienes acceso a este paciente.');
+        }
+        $paciente = Pacientes::find($pacienteId);
         if (!$paciente) {
-            return redirect()->route('pacientes.index')->with('error', 'Paciente no encontrado.');
+            return back()->with('error', 'Paciente no encontrado.');
         }
-        $estados = Estados::where('Status', 1)->get();
-        $municipios = collect();
-        if ($estados->isNotEmpty()) {
-            $municipios = $estados->first()->municipios()->where('Status', 1)->get();
+        switch ($user->Rol) {
+            case 'Maestro':
+                $layout = 'layouts.maestro';
+                break;
+            case 'Alumno':
+                $layout = 'layouts.alumno';
+                break;
+            case 'Administrativo':
+                $layout = 'layouts.admin';
+                break;
+            default:
+                $layout = 'layouts.app';
+                break;
         }
-        return view('pacientes.show', compact('paciente'));
+        return view('pacientes.show', compact('paciente', 'layout'));
     }
 
     public function create()
