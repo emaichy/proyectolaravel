@@ -126,7 +126,7 @@
                                                 {{ $asignacion->paciente->ApeMaterno }}</strong>
                                             <span class="badge bg-info">ID: {{ $asignacion->paciente->ID_Paciente }}</span>
                                             <button class="btn btn-outline-secondary btn-sm float-end"
-                                                onclick="location.href='{{ route('pacientes.show', [$alumno->Matricula, $asignacion->paciente->ID_Paciente]) }}'">
+                                                onclick="location.href='{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}'">
                                                 <i class="bi bi-eye"></i> Ver Paciente
                                             </button>
                                             @if ($rol === 'Administrativo')

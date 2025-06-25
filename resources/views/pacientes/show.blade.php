@@ -88,7 +88,8 @@
                         <a href="#" class="btn btn-info me-2">
                             <i class="bi bi-pencil-square me-1"></i> Ver Historial Clínico
                         </a>
-                        <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}" class="btn btn-success me-2">
+                        <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}"
+                            class="btn btn-success me-2">
                             <i class="bi bi-plus-square"></i> Ver Documentos Adjuntos
                         </a>
                         <a href="{{ route('fotografias.byPaciente', $paciente->ID_Paciente) }}"

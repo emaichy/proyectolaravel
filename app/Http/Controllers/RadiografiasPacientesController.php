@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumnos;
 use App\Models\Pacientes;
 use App\Models\RadiografiasPacientes;
 use Illuminate\Http\Request;
@@ -21,15 +22,39 @@ class RadiografiasPacientesController extends Controller
         return view('radiografias.index', compact('radiografias', 'pacientes'));
     }
 
-    public function showByPacient($id)
+    public function showByPacient($pacienteId)
     {
-        $radiografias = RadiografiasPacientes::where('ID_Paciente', $id)
+        $user = auth()->user();
+        $paciente = Pacientes::find($pacienteId);
+        if (!$paciente) {
+            return back()->with('error', 'Paciente no encontrado.');
+        }
+        if ($user->Rol === 'Alumno') {
+            $alumno = Alumnos::where('Matricula', $user->Matricula)->first();
+            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                return back()->with('error', 'No tienes permisos para ver estos documentos.');
+            }
+        }
+        $radiografias = RadiografiasPacientes::where('ID_Paciente', $pacienteId)
             ->where('Status', 1)
             ->get();
-
+        switch ($user->Rol) {
+            case 'Maestro':
+                $layout = 'layouts.maestro';
+                break;
+            case 'Alumno':
+                $layout = 'layouts.alumno';
+                break;
+            case 'Administrativo':
+                $layout = 'layouts.admin';
+                break;
+            default:
+                $layout = 'layouts.app';
+        }
         return view('radiografias.showByPacient', [
             'radiografias' => $radiografias,
-            'pacienteId' => $id
+            'paciente' => $paciente,
+            'layout' => $layout,
         ]);
     }
 
@@ -132,15 +157,23 @@ class RadiografiasPacientesController extends Controller
         }
     }
 
-    public function download($id)
+    public function download($pacienteId, $radiografiaId)
     {
-        $radiografia = RadiografiasPacientes::findOrFail($id);
+        $user = auth()->user();
+        $radiografia = RadiografiasPacientes::findOrFail($radiografiaId);
+        if ($radiografia->ID_Paciente != $pacienteId) {
+            return back()->with('error', 'No tienes acceso a este documento.');
+        }
+        if ($user->Rol === 'Alumno') {
+            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                return back()->with('error', 'No tienes permisos para descargar este documento.');
+            }
+        }
         $filePath = public_path($radiografia->RutaArchivo);
-
         if (!file_exists($filePath)) {
             abort(404, 'Archivo no encontrado');
         }
-
         return response()->download($filePath);
     }
 }

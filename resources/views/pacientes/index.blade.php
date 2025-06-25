@@ -25,7 +25,7 @@
                         </td>
                         <td>{{ $paciente->TipoPaciente }}</td>
                         <td>
-                            <a href="{{ route('pacientes.show', $paciente) }}" class="btn btn-info btn-sm">Ver</a>
+                            <a href="{{ route('pacientes.show', $paciente->ID_Paciente) }}" class="btn btn-info btn-sm">Ver</a>
                             <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-warning btn-sm">Editar</a>
                             <button type="button"
                                 class="btn btn-danger btn-sm btn-eliminar-paciente"

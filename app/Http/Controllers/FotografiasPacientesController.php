@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumnos;
 use App\Models\Pacientes;
 use App\Models\FotografiasPacientes;
 use Illuminate\Http\Request;
@@ -27,15 +28,40 @@ class FotografiasPacientesController extends Controller
         return view('fotografias.index', compact('fotografias', 'pacientes'));
     }
 
-    public function showByPacient($id)
+    public function showByPacient($pacienteId)
     {
-        $fotografias = FotografiasPacientes::where('ID_Paciente', $id)
+        $user = auth()->user();
+        $paciente = Pacientes::find($pacienteId);
+        if (!$paciente) {
+            return back()->with('error', 'Paciente no encontrado.');
+        }
+        if ($user->Rol === 'Alumno') {
+            $alumno = Alumnos::where('Matricula', $user->Matricula)->first();
+            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                return back()->with('error', 'No tienes permisos para ver estos documentos.');
+            }
+        }
+        $fotografias = FotografiasPacientes::where('ID_Paciente', $pacienteId)
             ->where('Status', 1)
             ->get();
-
+        switch ($user->Rol) {
+            case 'Maestro':
+                $layout = 'layouts.maestro';
+                break;
+            case 'Alumno':
+                $layout = 'layouts.alumno';
+                break;
+            case 'Administrativo':
+                $layout = 'layouts.admin';
+                break;
+            default:
+                $layout = 'layouts.app';
+                break;
+        }
         return view('fotografias.showByPacient', [
             'fotografias' => $fotografias,
-            'pacienteId' => $id
+            'paciente' => $paciente,
+            'layout'=>$layout,
         ]);
     }
 
@@ -138,15 +164,23 @@ class FotografiasPacientesController extends Controller
         }
     }
 
-    public function download($id)
+    public function download($pacienteId, $fotografiaId)
     {
-        $fotografia = FotografiasPacientes::findOrFail($id);
+        $user = auth()->user();
+        $fotografia = FotografiasPacientes::findOrFail($fotografiaId);
+        if ($fotografia->ID_Paciente != $pacienteId) {
+            return back()->with('error', 'No tienes acceso a este documento.');
+        }
+        if ($user->Rol === 'Alumno') {
+            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                return back()->with('error', 'No tienes permisos para descargar este documento.');
+            }
+        }
         $filePath = public_path($fotografia->RutaArchivo);
-
         if (!file_exists($filePath)) {
             abort(404, 'Archivo no encontrado');
         }
-
         return response()->download($filePath);
     }
 }

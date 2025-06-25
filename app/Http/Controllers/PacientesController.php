@@ -23,24 +23,9 @@ class PacientesController extends Controller
         ]);
     }
 
-    public function show($alumnoId, $pacienteId)
+    public function show($pacienteId)
     {
         $user = auth()->user();
-        if ($user->Rol === 'Alumno') {
-            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
-            if (!$alumno || $alumno->Matricula != $alumnoId) {
-                return back()->with('error', 'No tienes permisos para ver este paciente.');
-            }
-        } else {
-            $alumno = Alumnos::where('Matricula', $alumnoId)->first();
-            if (!$alumno) {
-                return back()->with('error', 'Alumno no encontrado.');
-            }
-        }
-        $asignacion = $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->first();
-        if (!$asignacion) {
-            return back()->with('error', 'No tienes acceso a este paciente.');
-        }
         $paciente = Pacientes::find($pacienteId);
         if (!$paciente) {
             return back()->with('error', 'Paciente no encontrado.');
