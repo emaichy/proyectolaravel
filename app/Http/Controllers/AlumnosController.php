@@ -210,9 +210,11 @@ class AlumnosController extends Controller
         return back()->with('success', 'Grupo desasignado exitosamente del alumno.');
     }
 
-    public function alumnosByMaestro($id)
+    public function alumnosByMaestro($id, Request $request)
     {
         $user = auth()->user();
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         if ($user->Rol === 'Maestro') {
             if (!$user->maestro || $user->maestro->ID_Maestro != $id) {
                 return redirect()->route('maestro.home')

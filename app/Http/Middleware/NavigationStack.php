@@ -23,6 +23,7 @@ class NavigationStack
             'municipiosEstado/*',
             'estados/*',
             'pacientes/list',
+            'grupos_maestros/ajax/*'
         ];
         if ($request->query('reset_nav')) {
             session()->forget('nav_stack');

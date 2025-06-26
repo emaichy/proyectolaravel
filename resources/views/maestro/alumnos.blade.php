@@ -1,3 +1,7 @@
+<pre>
+    {{ print_r(session('nav_stack'), true) }}
+</pre>
+
 @extends('layouts.maestro')
 
 @section('content')
@@ -77,7 +81,7 @@
                                                     {{ $alumno->usuario ? $alumno->usuario->Correo : 'N/A' }}
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('alumnos.show', ['alumno' => $alumno->Matricula, 'back' => url()->current()]) }}"
+                                                    <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
                                                         class="btn btn-outline-info btn-sm">
                                                         <i class="bi bi-eye"></i> Ver
                                                     </a>
