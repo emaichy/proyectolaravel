@@ -215,6 +215,10 @@ class PacientesController extends Controller
         DocumentosPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         FotografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         RadiografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        AsignacionPacientesAlumnos::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 
