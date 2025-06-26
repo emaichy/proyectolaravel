@@ -91,7 +91,7 @@
             </div>
             <div class="mt-4">
                 <button class="btn btn-primary">Crear Maestro</button>
-                <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
+                <a href="{{ route('volver') }}" class="btn btn-secondary">Regresar</a>
             </div>
         </form>
     </div>

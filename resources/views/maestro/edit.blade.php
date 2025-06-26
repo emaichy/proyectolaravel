@@ -122,7 +122,7 @@
             </div>
             <div class="mt-4 d-flex justify-content-between">
                 <button class="btn btn-primary">Actualizar Maestro</button>
-                <a href="{{ route('maestros.index') }}" class="btn btn-secondary">Regresar</a>
+                <a href="{{ route('volver') }}" class="btn btn-secondary">Regresar</a>
             </div>
         </form>
     </div>

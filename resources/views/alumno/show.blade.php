@@ -1,6 +1,7 @@
 @extends($layout)
 @php
     $rol = Auth::user()->Rol ?? null;
+    $maestro = \App\Models\Maestros::where('ID_Usuario', auth()->user()->ID_Usuario)->first();
 @endphp
 @section('title', 'Detalle del Alumno')
 
@@ -149,10 +150,10 @@
                                                 {{ $asignacion->paciente->ApePaterno }}
                                                 {{ $asignacion->paciente->ApeMaterno }}</strong>
                                             <span class="badge bg-info">ID: {{ $asignacion->paciente->ID_Paciente }}</span>
-                                            <button class="btn btn-outline-secondary btn-sm float-end"
-                                                onclick="location.href='{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}'">
+                                            <a href="{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}"
+                                                class="btn btn-outline-secondary btn-sm float-end">
                                                 <i class="bi bi-eye"></i> Ver Paciente
-                                            </button>
+                                            </a>
                                             @if ($rol === 'Administrativo')
                                                 <form
                                                     action="{{ route('asignaciones.destroy', $asignacion->ID_Asignacion) }}"
@@ -208,7 +209,7 @@
                         </div>
                     @endif
                 </div>
-                <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                <a href="{{ route('volver') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Volver
                 </a>
             </div>

@@ -107,7 +107,7 @@
                         @endif
                     </div>
                     <div class="d-flex justify-content-between">
-                        <a href="{{ route('maestros.index') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('volver') }}" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left"></i> Volver
                         </a>
                         <div>

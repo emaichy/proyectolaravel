@@ -9,6 +9,7 @@ use App\Http\Controllers\FotografiasPacientesController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\MaestrosController;
 use App\Http\Controllers\MunicipiosController;
+use App\Http\Controllers\NavigationController;
 use App\Http\Controllers\PacientesController;
 use App\Http\Controllers\RadiografiasPacientesController;
 use App\Http\Controllers\TelefonosPacientesController;
@@ -36,6 +37,7 @@ Route::get('/', [AuthController::class, 'redirect'])->name('home');
 Route::middleware(AdminIsAuthenticated::class)->group(function () {
     Route::get('/admin', function () {
         return view('admin.home');
+        session()->forget('nav_stack');
     })->name('admin.home');
 
     Route::prefix('usuarios')->group(function () {
@@ -188,6 +190,7 @@ Route::middleware(IsAuthenticated::class)->group(function () {
     Route::get('/alumno/paciente/{paciente}/radiografias/download/{radiografia}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
     Route::get('/alumno/paciente/{paciente}/fotografias', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
     Route::get('/alumno/paciente/{paciente}/fotografias/download/{fotografia}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
+    Route::get('/volver', [NavigationController::class, 'back'])->name('volver');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

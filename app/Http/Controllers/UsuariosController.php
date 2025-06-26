@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuariosController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $usuarios = Usuarios::where('Status', 1)->paginate(10);
         if ($usuarios->isEmpty()) {
             return redirect()->route('usuarios.create')->with('info', 'No hay usuarios registrados. Por favor, crea un nuevo usuario.');

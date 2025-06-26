@@ -81,7 +81,7 @@
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between">
-                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('volver') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Volver
                     </a>
                     <div>

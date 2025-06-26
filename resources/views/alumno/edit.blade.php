@@ -1,3 +1,6 @@
+<pre>
+    {{ print_r(session('nav_stack'), true) }}
+</pre>
 @extends('layouts.admin')
 
 @section('content')
@@ -121,7 +124,9 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Actualizar Alumno</button>
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
+            <a href="{{ route('volver') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
         </form>
     </div>
     <script>

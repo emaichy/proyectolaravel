@@ -6,7 +6,7 @@
 @section('content')
     <div class="container">
         <h2 class="mb-4">Radiografías del paciente</h2>
-        <a href="{{ route('pacientes.show', $paciente) }}" class="btn btn-outline-secondary mb-4"><i
+        <a href="{{ route('volver') }}" class="btn btn-outline-secondary mb-4"><i
                 class="bi bi-arrow-left"></i> Volver</a>
         @if (session('success'))
             <script>

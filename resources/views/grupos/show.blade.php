@@ -24,18 +24,21 @@
         $rol = Auth::user()->Rol ?? null;
     @endphp
     <div class="container py-4">
-        @if ($rol === 'Administrativo')
-            <div class="mb-4">
-                <div class="card-body d-flex justify-content-center gap-3 flex-wrap">
+        <div class="mb-4">
+            <div class="card-body d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ route('volver') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                @if ($rol === 'Administrativo')
                     <button type="button" class="btn btn-primary" id="abrir-modal-alumno">
                         <i class="bi bi-person-plus"></i> Agregar alumnos
                     </button>
                     <button type="button" class="btn btn-success" id="abrir-modal-maestro">
                         <i class="bi bi-person-badge"></i> Agregar maestros
                     </button>
-                </div>
+                @endif
             </div>
-        @endif
+        </div>
         <div id="grupo-detalle">
             @include('grupos.detalle', [
                 'grupo' => $grupo,

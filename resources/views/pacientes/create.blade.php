@@ -93,8 +93,10 @@
                 </div>
             </div>
 
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Guardar</button>
+            <div class="mt-4 d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+                <div class="mx-2"></div>
+                <a href="{{ route('volver') }}" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>

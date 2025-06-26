@@ -77,7 +77,7 @@
                                                     {{ $alumno->usuario ? $alumno->usuario->Correo : 'N/A' }}
                                                 </td>
                                                 <td>
-                                                    <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
+                                                    <a href="{{ route('alumnos.show', ['alumno' => $alumno->Matricula, 'back' => url()->current()]) }}"
                                                         class="btn btn-outline-info btn-sm">
                                                         <i class="bi bi-eye"></i> Ver
                                                     </a>

@@ -71,7 +71,7 @@
             </div>
 
             <div class="mt-4">
-                <a href="{{ route('maestros.show', $maestro->ID_Maestro) }}" class="btn btn-secondary">
+                <a href="{{ route('volver') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Volver al perfil
                 </a>
             </div>

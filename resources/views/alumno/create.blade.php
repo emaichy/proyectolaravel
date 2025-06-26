@@ -92,7 +92,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Crear Alumno</button>
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">Regresar</a>
+            <a href="{{ route('volver') }}" class="btn btn-secondary">Regresar</a>
         </form>
     </div>
     <script>

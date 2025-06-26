@@ -14,8 +14,10 @@ use Illuminate\Support\Str;
 
 class PacientesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $pacientes = Pacientes::where('Status', 1)->paginate(10);
         return view('pacientes.index', [
             'pacientes' => $pacientes,
