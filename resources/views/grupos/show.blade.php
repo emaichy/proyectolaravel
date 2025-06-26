@@ -1,3 +1,7 @@
+<pre>
+    {{ print_r(session('nav_stack'), true) }}
+</pre>
+
 @extends($layout)
 @section('content')
     @if (session('success'))
@@ -392,26 +396,29 @@
                         const btn = document.createElement('button');
                         btn.textContent = '[.....]';
                         btn.className = 'btn btn-outline-secondary btn-sm btn-dots';
+                        btn.disabled = true;
                         navContainer.appendChild(btn);
                     }
-                    if (index <= 2) {
-                        for (let i = 0; i <= 2 && i < total; i++) createBtn(todosLosGrupos[i], i === index);
-                        if (total > 6) {
+                    if (total <= 6) {
+                        for (let i = 0; i < total; i++) createBtn(todosLosGrupos[i], i === index);
+                    } else {
+                        if (index <= 2) {
+                            for (let i = 0; i <= 2 && i < total; i++) createBtn(todosLosGrupos[i], i === index);
                             createDots();
                             for (let i = total - 3; i < total; i++) createBtn(todosLosGrupos[i], i === index);
+                        } else if (index >= total - 3) {
+                            for (let i = 0; i < 3; i++) createBtn(todosLosGrupos[i], i === index);
+                            createDots();
+                            for (let i = total - 3; i < total; i++) createBtn(todosLosGrupos[i], i === index);
+                        } else {
+                            createBtn(todosLosGrupos[0]);
+                            createDots();
+                            createBtn(todosLosGrupos[index - 1]);
+                            createBtn(todosLosGrupos[index], true);
+                            createBtn(todosLosGrupos[index + 1]);
+                            createDots();
+                            createBtn(todosLosGrupos[total - 1]);
                         }
-                    } else if (index >= total - 3) {
-                        for (let i = 0; i < 3; i++) createBtn(todosLosGrupos[i], i === index);
-                        createDots();
-                        for (let i = total - 3; i < total; i++) createBtn(todosLosGrupos[i], i === index);
-                    } else {
-                        createBtn(todosLosGrupos[0]);
-                        createDots();
-                        createBtn(todosLosGrupos[index - 1]);
-                        createBtn(todosLosGrupos[index], true);
-                        createBtn(todosLosGrupos[index + 1]);
-                        createDots();
-                        createBtn(todosLosGrupos[total - 1]);
                     }
                 }
 

@@ -196,7 +196,6 @@ Route::middleware(IsAuthenticated::class)->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
 // CREACION Y VIZUALIZACION DE DOCUMENTOS  PARA EL EXPEDIENTE !!!!
 //Agrege rutas para el apartado de docuemtos, agregue estas de el apartaddo donde se pondran las vistas para la creacion de documentos 17/06/25 
 use App\Http\Controllers\DocumentosController;
@@ -228,7 +227,12 @@ Route::middleware(['auth', 'alumno'])->group(function () {
 //👨‍🏫 RUTAS PARA MAESTROS
 
 Route::middleware(['auth', 'maestro'])->group(function () {
+// Ver Index de todos los Documentos
+Route::get('/maestro/documentos/{matricula}', [DocumentosController::class, 'index'])
+    ->name('maestro.documentos.index');
+
 // 📋 NOTAS DE EVOLUCIÓN
+
 Route::get('/maestro/notasevolucion', [NotasEvolucionController::class, 'index'])->name('maestro.notasevolucion.index');
 
 Route::get('/maestro/notasevolucion/{notasevolucion}/edit', [NotasEvolucionController::class, 'edit'])->name('maestro.notasevolucion.edit');
@@ -246,17 +250,4 @@ Route::get('/maestro/consentimiento/{consentimiento}/edit', [ConsentimientoContr
 Route::put('/maestro/consentimiento/{consentimiento}', [ConsentimientoController::class, 'update'])->name('maestro.consentimiento.update');
 Route::get('/maestro/alumno/{matricula}/consentimientos', [ConsentimientoController::class, 'verConsentimientosAlumno'])->name('maestro.consentimiento.alumno');
 
-
-    Route::get('/maestro/alumno/{matricula}/documentoss', [DocumentosController::class, 'index'])
-        ->name('maestro.documentoss.index');;
-
-Route::get('/maestro/documentos/{matricula}', [DocumentosController::class, 'index'])
-    ->name('maestro.documentos.index');
-
-
-    Route::prefix('maestro/grupos')->group(function () {
-    Route::get('/{maestro}/grupos', [MaestrosController::class, 'gestionarGrupos'])->name('maestros.grupos');
-        
-        Route::get('/{grupo}', [GruposController::class, 'show'])->name('maestro.grupos.show');
-    });
 });

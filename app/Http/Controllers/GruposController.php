@@ -181,8 +181,10 @@ class GruposController extends Controller
         ]);
     }
 
-    public function gruposByMaestro($id)
+    public function gruposByMaestro($id, Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $maestro = Maestros::findOrFail($id);
         $grupos = $maestro->grupos()->with('semestre')->get();
         return view('maestro.grupos', compact('grupos', 'maestro'))->render();
