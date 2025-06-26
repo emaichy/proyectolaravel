@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumnos;
+use App\Models\AsignacionPacientesAlumnos;
 use App\Models\Pacientes;
 use App\Models\FotografiasPacientes;
+use App\Models\Maestros;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -35,11 +37,27 @@ class FotografiasPacientesController extends Controller
         if (!$paciente) {
             return back()->with('error', 'Paciente no encontrado.');
         }
+        $allow = false;
         if ($user->Rol === 'Alumno') {
-            $alumno = Alumnos::where('Matricula', $user->Matricula)->first();
-            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
-                return back()->with('error', 'No tienes permisos para ver estos documentos.');
+            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+            if ($alumno && $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                $allow = true;
             }
+        } elseif ($user->Rol === 'Maestro') {
+            $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
+            if ($maestro) {
+                $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
+                    $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
+                })
+                    ->where('ID_Paciente', $pacienteId)
+                    ->exists();
+                if ($hasPaciente) $allow = true;
+            }
+        } elseif ($user->Rol === 'Administrativo') {
+            $allow = true;
+        }
+        if (!$allow) {
+            return back()->with('error', 'No tienes permisos para ver estas fotografías.');
         }
         $fotografias = FotografiasPacientes::where('ID_Paciente', $pacienteId)
             ->where('Status', 1)
@@ -61,7 +79,7 @@ class FotografiasPacientesController extends Controller
         return view('fotografias.showByPacient', [
             'fotografias' => $fotografias,
             'paciente' => $paciente,
-            'layout'=>$layout,
+            'layout' => $layout,
         ]);
     }
 

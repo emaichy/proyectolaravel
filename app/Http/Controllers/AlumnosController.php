@@ -39,6 +39,7 @@ class AlumnosController extends Controller
 
     public function show($id)
     {
+        $user = auth()->user();
         $alumno = Alumnos::with([
             'grupo',
             'usuario',
@@ -46,14 +47,24 @@ class AlumnosController extends Controller
             'municipio',
             'asignaciones.paciente'
         ])->findOrFail($id);
+        if ($user->Rol === 'Maestro') {
+            $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->firstOrFail();
+            $pertenece = $maestro->grupos()
+                ->where('grupos.ID_Grupo', $alumno->ID_Grupo)
+                ->exists();
+            if (!$pertenece) {
+                return back()->with('error', 'No tienes permiso para ver este alumno.');
+            }
+            $layout = 'layouts.maestro';
+        } else {
+            $layout = 'layouts.admin';
+        }
         $gruposDisponibles = Grupos::whereDoesntHave('alumnos')
             ->orWhere('ID_Grupo', $alumno->ID_Grupo)
             ->with('semestre')
             ->get();
         $asignados = $alumno->asignaciones->pluck('ID_Paciente');
         $pacientesDisponibles = Pacientes::whereNotIn('ID_Paciente', $asignados)->get();
-        $user = auth()->user();
-        $layout = ($user->Rol === 'Maestro') ? 'layouts.maestro' : 'layouts.admin';
         return view('alumno.show', compact('alumno', 'gruposDisponibles', 'pacientesDisponibles', 'layout'));
     }
 

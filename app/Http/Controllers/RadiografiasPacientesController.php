@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumnos;
+use App\Models\AsignacionPacientesAlumnos;
+use App\Models\Maestros;
 use App\Models\Pacientes;
 use App\Models\RadiografiasPacientes;
 use Illuminate\Http\Request;
@@ -29,11 +31,27 @@ class RadiografiasPacientesController extends Controller
         if (!$paciente) {
             return back()->with('error', 'Paciente no encontrado.');
         }
+        $allow = false;
         if ($user->Rol === 'Alumno') {
-            $alumno = Alumnos::where('Matricula', $user->Matricula)->first();
-            if (!$alumno || !$alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
-                return back()->with('error', 'No tienes permisos para ver estos documentos.');
+            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+            if ($alumno && $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
+                $allow = true;
             }
+        } elseif ($user->Rol === 'Maestro') {
+            $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
+            if ($maestro) {
+                $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
+                    $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
+                })
+                    ->where('ID_Paciente', $pacienteId)
+                    ->exists();
+                if ($hasPaciente) $allow = true;
+            }
+        } elseif ($user->Rol === 'Administrativo') {
+            $allow = true;
+        }
+        if (!$allow) {
+            return back()->with('error', 'No tienes permisos para ver estas radiografías.');
         }
         $radiografias = RadiografiasPacientes::where('ID_Paciente', $pacienteId)
             ->where('Status', 1)
@@ -50,6 +68,7 @@ class RadiografiasPacientesController extends Controller
                 break;
             default:
                 $layout = 'layouts.app';
+                break;
         }
         return view('radiografias.showByPacient', [
             'radiografias' => $radiografias,

@@ -6,7 +6,8 @@
 @section('content')
     <div class="container">
         <h2 class="mb-4">Fotografías del paciente</h2>
-        <button class="btn btn-secondary mb-4" onclick="history.back()">← Regresar</button>
+        <a href="{{ route('pacientes.show', $paciente) }}" class="btn btn-outline-secondary mb-4"><i
+                class="bi bi-arrow-left"></i> Volver</a>
         @if (session('success'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
