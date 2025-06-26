@@ -14,8 +14,10 @@ use Illuminate\Support\Str;
 
 class PacientesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $pacientes = Pacientes::where('Status', 1)->paginate(10);
         return view('pacientes.index', [
             'pacientes' => $pacientes,
@@ -36,7 +38,7 @@ class PacientesController extends Controller
 
         switch ($user->Rol) {
             case 'Maestro':
-                $maestro = \App\Models\Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
+                $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
                 if ($maestro) {
                     $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
                         $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
@@ -213,6 +215,10 @@ class PacientesController extends Controller
         DocumentosPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         FotografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         RadiografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        AsignacionPacientesAlumnos::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 

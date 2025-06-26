@@ -9,6 +9,7 @@ use App\Http\Controllers\FotografiasPacientesController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\MaestrosController;
 use App\Http\Controllers\MunicipiosController;
+use App\Http\Controllers\NavigationController;
 use App\Http\Controllers\PacientesController;
 use App\Http\Controllers\RadiografiasPacientesController;
 use App\Http\Controllers\TelefonosPacientesController;
@@ -36,6 +37,7 @@ Route::get('/', [AuthController::class, 'redirect'])->name('home');
 Route::middleware(AdminIsAuthenticated::class)->group(function () {
     Route::get('/admin', function () {
         return view('admin.home');
+        session()->forget('nav_stack');
     })->name('admin.home');
 
     Route::prefix('usuarios')->group(function () {
@@ -96,8 +98,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::post('/store', [DocumentosPacientesController::class, 'store'])->name('documentos.store');
         Route::post('/update/{id}', [DocumentosPacientesController::class, 'update'])->name('documentos.update');
         Route::delete('/delete/{id}', [DocumentosPacientesController::class, 'destroy'])->name('documentos.destroy');
-        Route::get('/paciente/{id}', [DocumentosPacientesController::class, 'showByPacient'])->name('documentos.byPaciente');
-        Route::get('/download/{id}', [DocumentosPacientesController::class, 'download'])->name('documentos.download');
     });
 
     Route::prefix('radiografias')->group(function () {
@@ -105,8 +105,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::post('/store', [RadiografiasPacientesController::class, 'store'])->name('radiografias.store');
         Route::post('/update/{id}', [RadiografiasPacientesController::class, 'update'])->name('radiografias.update');
         Route::delete('/delete/{id}', [RadiografiasPacientesController::class, 'destroy'])->name('radiografias.destroy');
-        Route::get('/paciente/{id}', [RadiografiasPacientesController::class, 'showByPacient'])->name('radiografias.byPaciente');
-        Route::get('/download/{id}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
     });
 
     Route::prefix('fotografias')->group(function () {
@@ -114,8 +112,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::post('/store', [FotografiasPacientesController::class, 'store'])->name('fotografias.store');
         Route::post('/update/{id}', [FotografiasPacientesController::class, 'update'])->name('fotografias.update');
         Route::delete('/delete/{id}', [FotografiasPacientesController::class, 'destroy'])->name('fotografias.destroy');
-        Route::get('/paciente/{id}', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
-        Route::get('/download/{id}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
     });
 
     Route::prefix('maestros')->group(function () {
@@ -183,11 +179,18 @@ Route::middleware(MaestroOrAdmin::class)->group(function () {
         Route::get('/{grupo}', [GruposController::class, 'show'])->name('grupos.show');
         Route::get('/ajax/{id}', [GruposController::class, 'ajaxShow'])->name('grupos.ajax-show');
     });
-    Route::get('alumnos/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
+    Route::get('/alumnos/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
 });
 
 Route::middleware(IsAuthenticated::class)->group(function () {
-    Route::get('alumno/{alumno}/paciente/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
+    Route::get('/alumno/paciente/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
+    Route::get('/alumno/paciente/{paciente}/documentos', [DocumentosPacientesController::class, 'showByPacient'])->name('documentos.byPaciente');
+    Route::get('/alumno/paciente/{paciente}/documentos/download/{documento}', [DocumentosPacientesController::class, 'download'])->name('documentos.download');
+    Route::get('/alumno/paciente/{paciente}/radiografias', [RadiografiasPacientesController::class, 'showByPacient'])->name('radiografias.byPaciente');
+    Route::get('/alumno/paciente/{paciente}/radiografias/download/{radiografia}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
+    Route::get('/alumno/paciente/{paciente}/fotografias', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
+    Route::get('/alumno/paciente/{paciente}/fotografias/download/{fotografia}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
+    Route::get('/volver', [NavigationController::class, 'back'])->name('volver');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -237,6 +240,8 @@ Route::get('/maestro/alumno/{matricula}/notasevolucion', [NotasEvolucionControll
 
 
 // 📝 CONSENTIMIENTOS
+Route::get('/maestro/consentimiento', [ConsentimientoController::class, 'index'])->name('maestro.consentimiento.index');
+
 Route::get('/maestro/consentimiento/{consentimiento}/edit', [ConsentimientoController::class, 'edit'])->name('maestro.consentimiento.edit');
 Route::put('/maestro/consentimiento/{consentimiento}', [ConsentimientoController::class, 'update'])->name('maestro.consentimiento.update');
 Route::get('/maestro/alumno/{matricula}/consentimientos', [ConsentimientoController::class, 'verConsentimientosAlumno'])->name('maestro.consentimiento.alumno');

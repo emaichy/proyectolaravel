@@ -17,6 +17,8 @@ class AlumnosController extends Controller
 {
     public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $query = Alumnos::where('Status', 1);
         if ($request->filled('grupo')) {
             $query->where('ID_Grupo', $request->grupo);

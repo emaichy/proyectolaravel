@@ -13,8 +13,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
 {
     $this->call([
-        NotaEvolucionSeeder::class,
+        ConsentimientoSeeder::class,
     ]);
-  }
+}
+
 }
 

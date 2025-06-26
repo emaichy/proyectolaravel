@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\Hash;
 
 class MaestrosController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $maestros = Maestros::where('Status', 1)->paginate(10);
         return view('maestro.index', compact('maestros'));
     }

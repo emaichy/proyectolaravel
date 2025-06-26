@@ -8,7 +8,7 @@
             <div class="col-md-8">
                 <div class="card shadow-lg border-0">
                     <div class="card-body text-center">
-                        <img src="{{ asset('images/teacher_welcome.svg') }}" alt="Bienvenido Maestro" class="mb-4"
+                        <img src="{{ asset('images/teacher.welcome.svg') }}" alt="Bienvenido Maestro" class="mb-4"
                             style="max-width:120px;">
                         <h1 class="display-5 mb-3">
                             @if (auth()->user()->maestro->Genero == 'Masculino')

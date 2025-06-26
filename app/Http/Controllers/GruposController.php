@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 
 class GruposController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
         $grupos = Grupos::where('Status', 1)->paginate(12);
         return view('grupos.index', compact('grupos'));
     }
