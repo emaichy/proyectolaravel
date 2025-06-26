@@ -23,41 +23,50 @@ class PacientesController extends Controller
         ]);
     }
 
-    public function show($alumnoId, $pacienteId)
+    public function show($pacienteId)
     {
         $user = auth()->user();
-        if ($user->Rol === 'Alumno') {
-            $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
-            if (!$alumno || $alumno->Matricula != $alumnoId) {
-                return back()->with('error', 'No tienes permisos para ver este paciente.');
-            }
-        } else {
-            $alumno = Alumnos::where('Matricula', $alumnoId)->first();
-            if (!$alumno) {
-                return back()->with('error', 'Alumno no encontrado.');
-            }
-        }
-        $asignacion = $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->first();
-        if (!$asignacion) {
-            return back()->with('error', 'No tienes acceso a este paciente.');
-        }
         $paciente = Pacientes::find($pacienteId);
+
         if (!$paciente) {
             return back()->with('error', 'Paciente no encontrado.');
         }
+
+        $allow = false;
+
         switch ($user->Rol) {
             case 'Maestro':
+                $maestro = \App\Models\Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
+                if ($maestro) {
+                    $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
+                        $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
+                    })
+                        ->where('ID_Paciente', $pacienteId)
+                        ->exists();
+                    if ($hasPaciente) $allow = true;
+                }
                 $layout = 'layouts.maestro';
                 break;
             case 'Alumno':
+                $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
+                if ($alumno) {
+                    $hasPaciente = AsignacionPacientesAlumnos::where('ID_Alumno', $alumno->Matricula)
+                        ->where('ID_Paciente', $pacienteId)
+                        ->exists();
+                    if ($hasPaciente) $allow = true;
+                }
                 $layout = 'layouts.alumno';
                 break;
             case 'Administrativo':
+                $allow = true;
                 $layout = 'layouts.admin';
                 break;
             default:
                 $layout = 'layouts.app';
                 break;
+        }
+        if (!$allow) {
+            return back()->with('error', 'No tienes permiso para ver este paciente.');
         }
         return view('pacientes.show', compact('paciente', 'layout'));
     }

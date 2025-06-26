@@ -12,6 +12,30 @@
                     <i class="bi bi-person-badge me-2"></i>
                     Detalle del Alumno
                 </h2>
+                @if (session('success'))
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: '{{ session('success') }}',
+                                confirmButtonColor: '#3085d6'
+                            });
+                        });
+                    </script>
+                @endif
+                @if (session('error'))
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '¡Error!',
+                                text: '{{ session('error') }}',
+                                confirmButtonColor: '#d33'
+                            });
+                        });
+                    </script>
+                @endif
             </div>
             <div class="card-body">
                 <div class="row mb-4">
@@ -126,7 +150,7 @@
                                                 {{ $asignacion->paciente->ApeMaterno }}</strong>
                                             <span class="badge bg-info">ID: {{ $asignacion->paciente->ID_Paciente }}</span>
                                             <button class="btn btn-outline-secondary btn-sm float-end"
-                                                onclick="location.href='{{ route('pacientes.show', [$alumno->Matricula, $asignacion->paciente->ID_Paciente]) }}'">
+                                                onclick="location.href='{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}'">
                                                 <i class="bi bi-eye"></i> Ver Paciente
                                             </button>
                                             @if ($rol === 'Administrativo')
