@@ -174,7 +174,8 @@ Route::middleware(MaestroIsAuthenticated::class)->group(function () {
         return view('maestro.home');
     })->name('maestro.home');
     Route::get('/perfil/{id}', [MaestrosController::class, 'perfil'])->name('maestro.perfil');
-    Route::put('/perfil/update/{id}', [MaestrosController::class, 'updatePerfil'])->name('maestro.perfil.update');
+    Route::post('/maestro/updateFoto/{id}', [MaestrosController::class, 'updateFoto'])->name('maestro.updateFoto');
+    Route::post('/maestro/guardarFirma/{id}', [MaestrosController::class, 'guardarFirma'])->name('maestro.guardarFirma');
     Route::get('/grupos/{id}', [GruposController::class, 'gruposByMaestro'])->name('maestro.grupos.index');
     Route::get('/alumnos_maestro/{maestro}', [AlumnosController::class, 'alumnosByMaestro'])->name('maestro.alumnos.index');
 });

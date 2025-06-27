@@ -16,6 +16,18 @@
             padding: 2rem 2rem 1.5rem 2rem;
         }
 
+        .profile-avatar-wrap {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 0;
+            margin-right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
         .profile-avatar {
             border: 4px solid #6366f1;
             padding: 4px;
@@ -25,6 +37,42 @@
             width: 110px;
             height: 110px;
             object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px #6366f136;
+            display: block;
+        }
+
+        .avatar-change-btn {
+            position: absolute;
+            left: 50%;
+            bottom: -18px;
+            transform: translateX(-50%);
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 6px #6366f133;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.95;
+            transition: opacity .2s, background .2s;
+            font-size: 1.1em;
+        }
+
+        .avatar-change-btn:hover {
+            background: #4f46e5;
+            opacity: 1;
+        }
+
+        .avatar-change-btn i {
+            margin: 0;
+            font-size: 1.18em;
         }
 
         @keyframes glow {
@@ -81,6 +129,7 @@
             font-size: 1.1em;
             display: block;
         }
+
         .carousel-item {
             padding: .3em 0;
         }
@@ -98,17 +147,24 @@
                 right: 10px;
                 top: 10px;
             }
+
+            .profile-avatar-wrap {
+                margin-right: 0.7rem;
+            }
         }
     </style>
     <div class="container py-3">
         <div class="profile-card position-relative">
-            <a href="{{ route('maestro.perfil.update', $maestro->ID_Maestro) }}" class="btn btn-primary edit-btn"
-                data-bs-toggle="tooltip" data-bs-placement="left" title="Editar Perfil">
-                <i class="fa-solid fa-pen"></i>
-            </a>
             <div class="d-flex align-items-center flex-wrap">
-                <img src="{{ $maestro->foto_perfil ?? asset('avatar.png') }}" alt="Foto de perfil"
-                    class="profile-avatar me-3">
+                <div class="profile-avatar-wrap">
+                    <img id="foto-perfil"
+                        src="{{ $maestro->Foto_Maestro ? asset($maestro->Foto_Maestro) : asset('avatar.png') }}"
+                        alt="Foto de perfil" class="profile-avatar">
+                    <input type="file" id="input-foto" accept="image/*" style="display:none;">
+                    <button class="avatar-change-btn" type="button" id="btn-cambiar-foto" title="Cambiar foto de perfil">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </div>
                 <div class="profile-info flex-grow-1">
                     <h3>
                         {{ $maestro->Nombre }} {{ $maestro->ApePaterno }} {{ $maestro->ApeMaestro }}
@@ -181,10 +237,44 @@
             @endif
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        $('#btn-cambiar-foto').on('click', function() {
+            $('#input-foto').click();
+        });
+
+        $('#input-foto').on('change', function() {
+            if (this.files && this.files[0]) {
+                var formData = new FormData();
+                formData.append('foto', this.files[0]);
+                formData.append('_token', '{{ csrf_token() }}');
+                $('#btn-cambiar-foto').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
+                $.ajax({
+                    url: "{{ route('maestro.updateFoto', $maestro->ID_Maestro) }}",
+                    method: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(resp) {
+                        if (resp.foto_url) {
+                            $('#foto-perfil').attr('src', resp.foto_url + '?t=' + new Date().getTime());
+                            Swal.fire('¡Éxito!', 'Foto de perfil actualizada.', 'success');
+                        }
+                        $('#btn-cambiar-foto').prop('disabled', false).html(
+                            '<i class="fa-solid fa-pen"></i>');
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', xhr.responseJSON?.error || 'No se pudo cambiar la foto',
+                            'error');
+                        $('#btn-cambiar-foto').prop('disabled', false).html(
+                            '<i class="fa-solid fa-pen"></i>');
+                    }
+                });
+            }
         });
     </script>
 @endsection

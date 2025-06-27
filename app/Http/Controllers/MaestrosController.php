@@ -166,13 +166,62 @@ class MaestrosController extends Controller
         return view('maestro.perfil', compact('maestro', 'estados', 'municipios'));
     }
 
-    public function updatePerfil(Request $request, $id)
+    public function updateFoto(Request $request, $id)
     {
-        $maestro = Maestros::find($id);
-        if (!$maestro) {
-            return redirect()->route('maestros.index')->with('error', 'Maestro no encontrado.');
+        $maestro = Maestros::findOrFail($id);
+        if (auth()->user()->id !== $maestro->usuario->id) {
+            return response()->json(['error' => 'No autorizado.'], 403);
         }
-        $maestro->update($request->all());
-        return redirect()->route('maestro.perfil', $maestro->id)->with('success', 'Perfil actualizado correctamente.');
+        $request->validate([
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+        $nombreCompleto = $maestro->Nombre . $maestro->ApePaterno . $maestro->ApeMaestro;
+        $carpetaMaestro = \Illuminate\Support\Str::slug($nombreCompleto);
+        $folderPerfil = public_path("maestros/{$carpetaMaestro}/perfil");
+        if (!file_exists($folderPerfil)) mkdir($folderPerfil, 0777, true);
+        if ($maestro->Foto_Maestro && file_exists(public_path($maestro->Foto_Maestro))) {
+            unlink(public_path($maestro->Foto_Maestro));
+        }
+        $foto = $request->file('foto');
+        $ext = $foto->getClientOriginalExtension();
+        $nombreFoto = 'perfil_' . time() . '.' . $ext;
+        $foto->move($folderPerfil, $nombreFoto);
+        $maestro->Foto_Maestro = "maestros/{$carpetaMaestro}/perfil/{$nombreFoto}";
+        $maestro->save();
+        return response()->json([
+            'success' => true,
+            'foto_url' => asset($maestro->Foto_Maestro)
+        ]);
+    }
+
+    public function guardarFirma(Request $request, $id)
+    {
+        $maestro = \App\Models\Maestros::findOrFail($id);
+        if (auth()->user()->id !== $maestro->usuario->id) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+        $request->validate([
+            'firma' => 'required|string'
+        ]);
+        if ($maestro->Firma) {
+            return response()->json(['error' => 'Ya tienes firma registrada.'], 400);
+        }
+        $firmaBase64 = $request->input('firma');
+        if (preg_match('/^data:image\/(\w+);base64,/', $firmaBase64, $type)) {
+            $extension = $type[1] == 'jpeg' ? 'jpg' : $type[1];
+            $data = substr($firmaBase64, strpos($firmaBase64, ',') + 1);
+            $data = base64_decode($data);
+            $nombreCompleto = $maestro->Nombre . $maestro->ApePaterno . $maestro->ApeMaestro;
+            $carpetaMaestro = \Illuminate\Support\Str::slug($nombreCompleto);
+            $folderFirma = public_path("maestros/{$carpetaMaestro}/firma");
+            if (!file_exists($folderFirma)) mkdir($folderFirma, 0777, true);
+            $nombreFirma = 'firma_' . time() . '.png';
+            file_put_contents("{$folderFirma}/{$nombreFirma}", $data);
+            $maestro->Firma = "maestros/{$carpetaMaestro}/firma/{$nombreFirma}";
+            $maestro->save();
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['error' => 'Formato de imagen inválido.'], 422);
+        }
     }
 }

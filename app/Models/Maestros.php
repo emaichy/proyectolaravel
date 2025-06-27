@@ -10,7 +10,7 @@ class Maestros extends Model
     use HasFactory;
     protected $table = 'maestros';
     protected $primaryKey = 'ID_Maestro';
-    protected $fillable = ['Nombre', 'ApePaterno', 'ApeMaestro', 'Especialidad', 'Firma', 'FechaNac', 'Sexo', 'Direccion', 'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais', 'Telefono', 'CedulaProfesional', 'ID_Estado', 'ID_Municipio', 'ID_Usuario', 'Status'];
+    protected $fillable = ['Nombre', 'ApePaterno', 'ApeMaestro', 'Especialidad', 'Foto_Maestro', 'Firma', 'FechaNac', 'Sexo', 'Direccion', 'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais', 'Telefono', 'CedulaProfesional', 'ID_Estado', 'ID_Municipio', 'ID_Usuario', 'Status'];
     public $timestamps = true;
 
     public function usuario()

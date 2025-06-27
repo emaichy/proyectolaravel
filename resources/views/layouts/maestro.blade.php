@@ -124,9 +124,19 @@
                             <i class="fa-solid fa-ellipsis-h"></i> Más
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="otrasOpcionesDropdown">
-                            <li><a class="dropdown-item"
-                                    href="{{ url('/perfil/' . auth()->user()->maestro->ID_Maestro) }}"><i
-                                        class="fa-solid fa-user"></i> Mi Perfil</a></li>
+                            <li>
+                                <a class="dropdown-item"
+                                    href="{{ url('/perfil/' . auth()->user()->maestro->ID_Maestro) }}">
+                                    <i class="fa-solid fa-user"></i> Mi Perfil
+                                </a>
+                            </li>
+                            @if (!auth()->user()->maestro->Firma)
+                                <li>
+                                    <button type="button" class="dropdown-item" id="btn-agregar-firma">
+                                        <i class="fa-solid fa-pen-nib"></i> Agregar Firma
+                                    </button>
+                                </li>
+                            @endif
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -154,10 +164,141 @@
             <p class="text-center mb-0">&copy; {{ date('Y') }} Panel de Maestros IUFIM</p>
         </div>
     </footer>
+    @if (!auth()->user()->maestro->Firma)
+        <!-- Modal para la firma -->
+        <div class="modal fade" id="modalFirma" tabindex="-1" aria-labelledby="modalFirmaLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="formFirma" autocomplete="off">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalFirmaLabel">
+                                <i class="fa-solid fa-pen-nib"></i> Agregar Firma Digital
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
+                        </div>
+                        <p class="text-center text-secondary mt-3">
+                            <i class="fa-solid fa-info-circle"></i> Por favor, firme en el área designada. Después de
+                            esto no podrá cambiarla.
+                        </p>
+                        <div class="modal-body">
+                            <div class="mb-3 text-center">
+                                <canvas id="firmaCanvas" width="320" height="120"
+                                    style="border: 2px solid #6366f1; border-radius: 8px; background: #f8fafc;"></canvas>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary btn-sm" id="btnLimpiarFirma">
+                                    <i class="fa-solid fa-eraser"></i> Limpiar
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i> Guardar Firma
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     @stack('scripts')
     @yield('scripts')
+    @if (!auth()->user()->maestro->Firma)
+        <script>
+            // Mostrar modal al hacer clic en el botón
+            $('#btn-agregar-firma').on('click', function() {
+                $('#modalFirma').modal('show');
+            });
+            // Canvas firma
+            const canvas = document.getElementById('firmaCanvas');
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
+
+            function getPos(e) {
+                let rect = canvas.getBoundingClientRect();
+                if (e.touches) {
+                    return {
+                        x: e.touches[0].clientX - rect.left,
+                        y: e.touches[0].clientY - rect.top
+                    };
+                }
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+            canvas.addEventListener('mousedown', e => {
+                drawing = true;
+                ctx.beginPath();
+            });
+            canvas.addEventListener('mouseup', e => {
+                drawing = false;
+            });
+            canvas.addEventListener('mouseout', e => {
+                drawing = false;
+            });
+            canvas.addEventListener('mousemove', function(e) {
+                if (!drawing) return;
+                let pos = getPos(e);
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#22223b';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            });
+            canvas.addEventListener('touchstart', function(e) {
+                drawing = true;
+                ctx.beginPath();
+            });
+            canvas.addEventListener('touchend', function(e) {
+                drawing = false;
+            });
+            canvas.addEventListener('touchcancel', function(e) {
+                drawing = false;
+            });
+            canvas.addEventListener('touchmove', function(e) {
+                if (!drawing) return;
+                let pos = getPos(e);
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#22223b';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault();
+            });
+            // Limpiar firma
+            $('#btnLimpiarFirma').on('click', function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+            // Guardar firma (AJAX)
+            $('#formFirma').on('submit', function(e) {
+                e.preventDefault();
+                let dataURL = canvas.toDataURL('image/png');
+                $.ajax({
+                    url: "{{ route('maestro.guardarFirma', auth()->user()->maestro->ID_Maestro) }}",
+                    method: "POST",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        firma: dataURL
+                    },
+                    success: function(resp) {
+                        $('#modalFirma').modal('hide');
+                        Swal.fire('¡Éxito!', 'Firma guardada correctamente.', 'success')
+                            .then(() => location.reload());
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', xhr.responseJSON?.error || 'No se pudo guardar la firma',
+                            'error');
+                    }
+                });
+            });
+        </script>
+    @endif
 </body>
 
 </html>

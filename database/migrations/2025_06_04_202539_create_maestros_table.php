@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('ApePaterno', 50);
             $table->string('ApeMaestro', 50);
             $table->string('Especialidad', 60);
+            $table->string('Foto_Maestro', 255)->nullable();
             $table->string('Firma', 200)->nullable();
             $table->date('FechaNac')->nullable();
             $table->enum('Sexo', ['Masculino', 'Femenino'])->nullable();
