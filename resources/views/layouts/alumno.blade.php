@@ -126,7 +126,7 @@
                         <ul class="dropdown-menu" aria-labelledby="otrasOpcionesDropdown">
                             <li>
                                 <a class="dropdown-item"
-                                    href="{{ url('/perfil/' . auth()->user()->alumno->Matricula) }}">
+                                    href="{{ route('alumno.perfil', auth()->user()->alumno->Matricula) }}">
                                     <i class="fa-solid fa-user"></i> Mi Perfil
                                 </a>
                             </li>

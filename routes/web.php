@@ -18,6 +18,7 @@ use App\Http\Controllers\TelefonosPacientesController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Middleware\AdminIsAuthenticated;
 use App\Http\Middleware\AlumnoIsAuthenticated;
+use App\Http\Middleware\AlumnoOrAdmin;
 use App\Http\Middleware\IsAuthenticated;
 use App\Http\Middleware\MaestroIsAuthenticated;
 use App\Http\Middleware\MaestroOrAdmin;
@@ -72,8 +73,6 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
         Route::get('/{municipio}', [MunicipiosController::class, 'show'])->name('municipios.show');
         Route::delete('/delete/{id}', [MunicipiosController::class, 'destroy'])->name('municipios.destroy');
     });
-
-    Route::get('/municipiosEstado/{estado}', [MunicipiosController::class, 'getMunicipiosByEstado']);
 
     Route::prefix('pacientes')->group(function () {
         Route::get('/list', [PacientesController::class, 'list'])->name('pacientes.list');
@@ -164,6 +163,9 @@ Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
     Route::get('/alumno', function () {
         return view('alumno.home');
     })->name('alumno.home');
+    Route::get('/alumno/perfil/{id}', [AlumnosController::class, 'perfil'])->name('alumno.perfil');
+    Route::post('/alumno/updateFoto/{id}', [AlumnosController::class, 'updateFoto'])->name('alumno.updateFoto');
+    Route::get('/alumno/pacientes/{id}', [PacientesController::class, 'pacientesByAlumno'])->name('alumno.pacientes.index');
 });
 
 Route::middleware(MaestroIsAuthenticated::class)->group(function () {
@@ -184,6 +186,10 @@ Route::middleware(MaestroOrAdmin::class)->group(function () {
     Route::get('/alumnos/{alumno}', [AlumnosController::class, 'show'])->name('alumnos.show');
 });
 
+Route::middleware(AlumnoOrAdmin::class)->group(function () {
+    
+});
+
 Route::middleware(IsAuthenticated::class)->group(function () {
     Route::get('/alumno/paciente/{paciente}', [PacientesController::class, 'show'])->name('pacientes.show');
     Route::get('/alumno/paciente/{paciente}/documentos', [DocumentosPacientesController::class, 'showByPacient'])->name('documentos.byPaciente');
@@ -193,6 +199,7 @@ Route::middleware(IsAuthenticated::class)->group(function () {
     Route::get('/alumno/paciente/{paciente}/fotografias', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
     Route::get('/alumno/paciente/{paciente}/fotografias/download/{fotografia}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
     Route::get('/expedientes/{expediente}', [ExpedienteController::class, 'show'])->name('expedientes.show');
+    Route::get('/municipiosEstado/{estado}', [MunicipiosController::class, 'getMunicipiosByEstado']);
     Route::get('/volver', [NavigationController::class, 'back'])->name('volver');
 });
 

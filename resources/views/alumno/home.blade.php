@@ -6,6 +6,26 @@
 @section('title', 'Inicio Alumno')
 
 @section('content')
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-8">

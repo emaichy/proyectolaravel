@@ -12,6 +12,7 @@ use App\Models\Semestre;
 use App\Models\Usuarios;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AlumnosController extends Controller
 {
@@ -116,43 +117,104 @@ class AlumnosController extends Controller
         if (!$usuario) {
             return redirect()->route('alumnos.index')->with('error', 'Usuario no encontrado para el alumno.');
         }
+        $user = auth()->user();
+        $rol = $user->Rol;
+        if ($rol === 'Alumno' && $user->alumno && $user->alumno->Matricula != $alumno->Matricula) {
+            return redirect()->route('alumnos.index')->with('error', 'No tienes permiso para editar este alumno.');
+        }
         $estados = Estados::where('Status', 1)->get();
         $municipios = Municipios::where('Status', 1)->get();
-        return view('alumno.edit', compact('alumno', 'estados', 'municipios'));
+        $layout = ($rol === 'Administrativo') ? 'layouts.admin' : 'layouts.alumno';
+        return view('alumno.edit', compact('alumno', 'estados', 'municipios', 'layout'));
     }
 
     public function update(Request $request, $id)
     {
-        $alumno = Alumnos::find($id);
-        if (!$alumno) {
-            return redirect()->route('alumnos.index')->with('error', 'Alumno no encontrado.');
+        try {
+            $alumno = Alumnos::find($id);
+            if (!$alumno) {
+                return back()->with('error', 'Alumno no encontrado.');
+            }
+
+            $nombreCompleto = trim("{$alumno->Nombre} {$alumno->ApePaterno} {$alumno->ApeMaterno}");
+            $carpetaAlumno = Str::slug($nombreCompleto);
+
+            // Procesar foto de perfil
+            if ($request->hasFile('Foto_Alumno')) {
+                $foto = $request->file('Foto_Alumno');
+                $folderPerfil = public_path("alumnos/{$carpetaAlumno}/perfil");
+                if (!file_exists($folderPerfil)) mkdir($folderPerfil, 0777, true);
+                // Elimina la foto anterior si existe
+                if ($alumno->Foto_Alumno && file_exists(public_path($alumno->Foto_Alumno))) {
+                    unlink(public_path($alumno->Foto_Alumno));
+                }
+                $ext = $foto->getClientOriginalExtension();
+                $nombreFoto = 'perfil_' . time() . '.' . $ext;
+                $foto->move($folderPerfil, $nombreFoto);
+                $alumno->Foto_Alumno = "alumnos/{$carpetaAlumno}/perfil/{$nombreFoto}";
+            }
+
+            // Guardar firma sólo si no existe aún
+            if (!$alumno->Firma && $request->filled('firma')) {
+                $firmaBase64 = $request->input('firma');
+                if (preg_match('/^data:image\/(\w+);base64,/', $firmaBase64, $type)) {
+                    $extension = strtolower($type[1]) === 'jpeg' ? 'jpg' : $type[1]; // Por si acaso
+                    $data = substr($firmaBase64, strpos($firmaBase64, ',') + 1);
+                    $data = base64_decode($data);
+
+                    if ($data !== false) {
+                        $folderFirma = public_path("alumnos/{$carpetaAlumno}/firma");
+                        if (!file_exists($folderFirma)) mkdir($folderFirma, 0777, true);
+                        $nombreFirma = 'firma_' . time() . '.' . $extension;
+                        file_put_contents("{$folderFirma}/{$nombreFirma}", $data);
+                        // Opcional: chmod("{$folderFirma}/{$nombreFirma}", 0644);
+                        $alumno->Firma = "alumnos/{$carpetaAlumno}/firma/{$nombreFirma}";
+                    }
+                }
+            }
+
+            $user = auth()->user();
+            $rol = $user->Rol;
+
+            if ($rol === 'Administrativo') {
+                // Admin puede actualizar todo
+                $alumno->Nombre = $request->Nombre;
+                $alumno->ApePaterno = $request->ApePaterno;
+                $alumno->ApeMaterno = $request->ApeMaterno;
+                $alumno->FechaNac = $request->FechaNac;
+                $alumno->Sexo = $request->Sexo;
+                $alumno->Direccion = $request->Direccion;
+                $alumno->NumeroExterior = $request->NumeroExterior;
+                $alumno->NumeroInterior = $request->NumeroInterior;
+                $alumno->CodigoPostal = $request->CodigoPostal;
+                $alumno->Telefono = $request->Telefono;
+                $alumno->Pais = $request->Pais;
+                $alumno->Curp = $request->Curp;
+                $alumno->ID_Estado = $request->ID_Estado;
+                $alumno->ID_Municipio = $request->ID_Municipio;
+                $usuario = $alumno->usuario;
+                if ($usuario) {
+                    $usuario->Correo = $request->Correo;
+                    if ($request->filled('password')) {
+                        $usuario->password = Hash::make($request->password);
+                    }
+                    $usuario->save();
+                }
+            } else {
+                // Alumno sólo puede actualizar estos campos
+                $alumno->Direccion = $request->Direccion;
+                $alumno->NumeroExterior = $request->NumeroExterior;
+                $alumno->NumeroInterior = $request->NumeroInterior;
+                $alumno->CodigoPostal = $request->CodigoPostal;
+                $alumno->Telefono = $request->Telefono;
+            }
+
+            $alumno->save();
+
+            return back()->with('success', 'Datos actualizados correctamente.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Error al actualizar: ' . $e->getMessage());
         }
-        $usuario = $alumno->usuario;
-        if (!$usuario) {
-            return redirect()->route('alumnos.index')->with('error', 'Usuario no encontrado para el alumno.');
-        }
-        $usuario->update([
-            'Correo' => $request->Correo,
-            'password' => Hash::make($request->password),
-        ]);
-        $alumno->update([
-            'Nombre' => $request->Nombre,
-            'ApePaterno' => $request->ApePaterno,
-            'ApeMaterno' => $request->ApeMaterno,
-            'FechaNac' => $request->FechaNac,
-            'Sexo' => $request->Sexo,
-            'Direccion' => $request->Direccion,
-            'NumeroExterior' => $request->NumeroExterior,
-            'NumeroInterior' => $request->NumeroInterior,
-            'CodigoPostal' => $request->CodigoPostal,
-            'Telefono' => $request->Telefono,
-            'Pais' => $request->Pais,
-            'Curp' => $request->Curp,
-            'ID_Usuario' => $usuario->ID_Usuario,
-            'ID_Estado' => $request->ID_Estado,
-            'ID_Municipio' => $request->ID_Municipio,
-        ]);
-        return redirect()->route('alumnos.index')->with('success', 'Alumno actualizado exitosamente.');
     }
 
     public function destroy($id)
@@ -230,5 +292,54 @@ class AlumnosController extends Controller
             ->orderBy('Nombre', 'asc')
             ->paginate(10);
         return view('maestro.alumnos', compact('alumnos'));
+    }
+
+    public function perfil($alumnoId, Request $request)
+    {
+        $user = auth()->user();
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
+        $alumno = Alumnos::find($alumnoId);
+        if (!$alumno) {
+            return redirect()->route('alumnos.home')->with('error', 'Alumno no encontrado.');
+        }
+        $alumnoAuth = auth()->user()->alumno;
+        if (!$alumnoAuth || $alumnoAuth->Matricula != $alumno->Matricula) {
+            return redirect()->back()->with('error', 'No tienes permiso para ver este perfil.');
+        }
+        $estados = Estados::where('Status', 1)->get();
+        $municipios = collect();
+        if ($estados->isNotEmpty()) {
+            $municipios = $estados->first()->municipios()->where('Status', 1)->get();
+        }
+        return view('alumno.perfil', compact('alumno', 'estados', 'municipios'));
+    }
+
+    public function updateFoto(Request $request, $id)
+    {
+        $alumno = Alumnos::findOrFail($id);
+        if (auth()->user()->id !== $alumno->usuario->id) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+        $request->validate([
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+        $nombreCompleto = $alumno->Nombre . $alumno->ApePaterno . $alumno->ApeMaterno;
+        $carpetaAlumno = Str::slug($nombreCompleto);
+        $folderPerfil = public_path("alumnos/{$carpetaAlumno}/perfil");
+        if (!file_exists($folderPerfil)) mkdir($folderPerfil, 0777, true);
+        if ($alumno->Foto_Alumno && file_exists(public_path($alumno->Foto_Alumno))) {
+            unlink(public_path($alumno->Foto_Alumno));
+        }
+        $foto = $request->file('foto');
+        $ext = $foto->getClientOriginalExtension();
+        $nombreFoto = 'perfil_' . time() . '.' . $ext;
+        $foto->move($folderPerfil, $nombreFoto);
+        $alumno->Foto_Alumno = "alumnos/{$carpetaAlumno}/perfil/{$nombreFoto}";
+        $alumno->save();
+        return response()->json([
+            'success' => true,
+            'foto_url' => asset($alumno->Foto_Alumno)
+        ]);
     }
 }
