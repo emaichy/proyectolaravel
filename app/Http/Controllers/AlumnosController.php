@@ -301,7 +301,7 @@ class AlumnosController extends Controller
         session()->put('nav_stack', [$current]);
         $alumno = Alumnos::find($alumnoId);
         if (!$alumno) {
-            return redirect()->route('alumnos.home')->with('error', 'Alumno no encontrado.');
+            return redirect()->back()->with('error', 'Alumno no encontrado.');
         }
         $alumnoAuth = auth()->user()->alumno;
         if (!$alumnoAuth || $alumnoAuth->Matricula != $alumno->Matricula) {
@@ -341,5 +341,36 @@ class AlumnosController extends Controller
             'success' => true,
             'foto_url' => asset($alumno->Foto_Alumno)
         ]);
+    }
+
+    public function guardarFirma(Request $request, $id)
+    {
+        $alumno = \App\Models\Alumnos::findOrFail($id);
+        if (auth()->user()->id !== $alumno->usuario->id) {
+            return response()->json(['error' => 'No autorizado.'], 403);
+        }
+        $request->validate([
+            'firma' => 'required|string'
+        ]);
+        if ($alumno->Firma) {
+            return response()->json(['error' => 'Ya tienes firma registrada.'], 400);
+        }
+        $firmaBase64 = $request->input('firma');
+        if (preg_match('/^data:image\/(\w+);base64,/', $firmaBase64, $type)) {
+            $extension = $type[1] == 'jpeg' ? 'jpg' : $type[1];
+            $data = substr($firmaBase64, strpos($firmaBase64, ',') + 1);
+            $data = base64_decode($data);
+            $nombreCompleto = $alumno->Nombre . $alumno->ApePaterno . $alumno->ApeMaterno;
+            $carpetaAlumno = \Illuminate\Support\Str::slug($nombreCompleto);
+            $folderFirma = public_path("alumnos/{$carpetaAlumno}/firma");
+            if (!file_exists($folderFirma)) mkdir($folderFirma, 0777, true);
+            $nombreFirma = 'firma_' . time() . '.png';
+            file_put_contents("{$folderFirma}/{$nombreFirma}", $data);
+            $alumno->Firma = "alumnos/{$carpetaAlumno}/firma/{$nombreFirma}";
+            $alumno->save();
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['error' => 'Formato de imagen inválido.'], 422);
+        }
     }
 }

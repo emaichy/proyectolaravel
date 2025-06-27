@@ -165,6 +165,7 @@ Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
     })->name('alumno.home');
     Route::get('/alumno/perfil/{id}', [AlumnosController::class, 'perfil'])->name('alumno.perfil');
     Route::post('/alumno/updateFoto/{id}', [AlumnosController::class, 'updateFoto'])->name('alumno.updateFoto');
+    Route::post('/alumno/guardarFirma/{id}', [AlumnosController::class, 'guardarFirma'])->name('alumno.guardarFirma');
     Route::get('/alumno/pacientes/{id}', [PacientesController::class, 'pacientesByAlumno'])->name('alumno.pacientes.index');
 });
 
