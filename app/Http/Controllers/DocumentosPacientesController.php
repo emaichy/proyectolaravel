@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumnos;
+use App\Models\AsignacionExpedienteAlumno;
 use App\Models\AsignacionPacientesAlumnos;
 use App\Models\DocumentosPacientes;
+use App\Models\Expediente;
 use App\Models\Maestros;
 use App\Models\Pacientes;
 use Illuminate\Http\Request;
@@ -38,20 +40,24 @@ class DocumentosPacientesController extends Controller
             return back()->with('error', 'Paciente no encontrado.');
         }
         $allow = false;
+        $expedientes = Expediente::where('ID_Paciente', $pacienteId)->pluck('ID_Expediente');
         if ($user->Rol === 'Alumno') {
             $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
-            if ($alumno && $alumno->asignaciones()->where('ID_Paciente', $pacienteId)->exists()) {
-                $allow = true;
+            if ($alumno && $expedientes->count() > 0) {
+                $asignado = AsignacionExpedienteAlumno::whereIn('ID_Expediente', $expedientes)
+                    ->where('ID_Alumno', $alumno->Matricula)
+                    ->exists();
+                if ($asignado) $allow = true;
             }
         } elseif ($user->Rol === 'Maestro') {
             $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
-            if ($maestro) {
-                $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
-                    $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
-                })
-                    ->where('ID_Paciente', $pacienteId)
+            if ($maestro && $expedientes->count() > 0) {
+                $asignado = AsignacionExpedienteAlumno::whereIn('ID_Expediente', $expedientes)
+                    ->whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
+                        $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
+                    })
                     ->exists();
-                if ($hasPaciente) $allow = true;
+                if ($asignado) $allow = true;
             }
         } elseif ($user->Rol === 'Administrativo') {
             $allow = true;

@@ -1,7 +1,3 @@
-<pre>
-    {{ print_r(session('nav_stack'), true) }}
-</pre>
-
 @extends('layouts.maestro')
 
 @section('content')
@@ -95,7 +91,7 @@
                     </div>
                 @else
                     <div class="alert alert-warning text-center mt-5 p-4 shadow-sm" role="alert">
-                        <img src="{{ asset('images/empty_students.png') }}" alt="Sin alumnos" width="80"
+                        <img src="{{ asset('vacio.png') }}" alt="Sin alumnos" width="80"
                             class="mb-3">
                         <h4 class="fw-bold mb-2">¡Sin alumnos asignados!</h4>
                         <p class="mb-0">Por el momento no tienes alumnos asignados a tu(s) grupo(s).</p>

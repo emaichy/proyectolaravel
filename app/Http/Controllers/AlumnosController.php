@@ -213,28 +213,22 @@ class AlumnosController extends Controller
         return back()->with('success', 'Grupo desasignado exitosamente del alumno.');
     }
 
-    public function alumnosByMaestro($id, Request $request)
+    public function alumnosByMaestro($maestroId, Request $request)
     {
         $user = auth()->user();
         $current = $request->fullUrl();
         session()->put('nav_stack', [$current]);
         if ($user->Rol === 'Maestro') {
-            if (!$user->maestro || $user->maestro->ID_Maestro != $id) {
+            if (!$user->maestro || $user->maestro->ID_Maestro != $maestroId) {
                 return redirect()->route('maestro.home')
                     ->with('error', 'No tienes permiso para ver los alumnos de este maestro.');
             }
         }
-        $maestro = Maestros::findOrFail($id);
+        $maestro = Maestros::findOrFail($maestroId);
         $alumnos = Alumnos::whereIn('ID_Grupo', $maestro->grupos()->pluck('grupos.ID_Grupo'))
             ->where('Status', 1)
             ->orderBy('Nombre', 'asc')
             ->paginate(10);
-
-        if ($alumnos->isEmpty()) {
-            return redirect()->route('alumnos.index')
-                ->with('error', 'No hay alumnos asignados a este maestro.');
-        }
-
         return view('maestro.alumnos', compact('alumnos'));
     }
 }
