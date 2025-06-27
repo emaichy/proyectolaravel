@@ -102,34 +102,42 @@
 
             <p><b>Firmas:</b></p>
 
+@php
+    $firmas = ['paciente', 'alumno', 'testigo'];
+    if(auth()->check() && auth()->user()->Rol === 'Maestro') {
+        $firmas[] = 'docentes';
+    }
+@endphp
+
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-    @foreach(['paciente', 'alumno', 'docentes', 'testigo'] as $firma)
-    <div style="flex: 1 1 45%; text-align: center;">
-        <label>Nombre {{ ucfirst($firma) }}</label>
+    @foreach($firmas as $firma)
+        <div style="flex: 1 1 45%; text-align: center;">
+            <label>Nombre {{ ucfirst($firma) }}</label>
 
-        @if($firma === 'paciente' && isset($pacienteSeleccionado))
-            <input type="text" name="nombre_paciente" class="form-control" 
-                value="{{ $pacienteSeleccionado->ApePaterno }} {{ $pacienteSeleccionado->ApeMaterno }} {{ $pacienteSeleccionado->Nombre }}" 
-                readonly>
-        @elseif($firma === 'alumno' && auth()->check() && auth()->user()->alumno)
-            <input type="text" name="nombre_alumno" class="form-control" 
-                value="{{ auth()->user()->alumno->Nombre }} {{ auth()->user()->alumno->ApePaterno }} {{ auth()->user()->alumno->ApeMaterno }}" 
-                readonly>
-        @elseif($firma === 'docentes')
-            <input type="text" name="nombre_docentes" id="nombre_docentes" class="form-control"
-                value="{{ old('docentes') }}" readonly>
-        @else
-            <input type="text" name="nombre_{{ $firma }}" class="form-control" 
-                placeholder="Nombre {{ $firma }}" value="{{ old('nombre_'.$firma) }}">
-        @endif
+            @if($firma === 'paciente' && isset($pacienteSeleccionado))
+                <input type="text" name="nombre_paciente" class="form-control" 
+                    value="{{ $pacienteSeleccionado->ApePaterno }} {{ $pacienteSeleccionado->ApeMaterno }} {{ $pacienteSeleccionado->Nombre }}" 
+                    readonly>
+            @elseif($firma === 'alumno' && auth()->check() && auth()->user()->alumno)
+                <input type="text" name="nombre_alumno" class="form-control" 
+                    value="{{ auth()->user()->alumno->Nombre }} {{ auth()->user()->alumno->ApePaterno }} {{ auth()->user()->alumno->ApeMaterno }}" 
+                    readonly>
+            @elseif($firma === 'docentes')
+                <input type="text" name="nombre_docentes" id="nombre_docentes" class="form-control"
+                    value="{{ old('docentes') }}" readonly>
+            @else
+                <input type="text" name="nombre_{{ $firma }}" class="form-control" 
+                    placeholder="Nombre {{ $firma }}" value="{{ old('nombre_'.$firma) }}">
+            @endif
 
-        <label>Firma {{ ucfirst($firma) }}</label><br>
-        <canvas class="signature" style="border:1px solid #000; width: 100%; height: 100px;"></canvas>
-        <input type="hidden" name="firma_{{ $firma }}">
-        <button type="button" class="clear-btn btn btn-sm btn-danger mt-2">Limpiar</button>
-    </div>
+            <label>Firma {{ ucfirst($firma) }}</label><br>
+            <canvas class="signature" style="border:1px solid #000; width: 100%; height: 100px;"></canvas>
+            <input type="hidden" name="firma_{{ $firma }}">
+            <button type="button" class="clear-btn btn btn-sm btn-danger mt-2">Limpiar</button>
+        </div>
     @endforeach
 </div>
+
 
 
             <br>

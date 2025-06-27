@@ -234,6 +234,6 @@ public function create(Request $request)
         ->with(['alumno', 'paciente', 'expediente', 'semestre', 'grupo'])
         ->get();
 
-    return view('documentoss.index', compact('consentimientos', 'alumno'));
+    return view('consentimiento.index', compact('consentimientos', 'alumno'));
 }
 }
