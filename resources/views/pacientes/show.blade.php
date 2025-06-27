@@ -85,8 +85,11 @@
                         <i class="bi bi-arrow-left"></i> Volver
                     </a>
                     <div>
-                        <a href="#" class="btn btn-info me-2">
-                            <i class="bi bi-pencil-square me-1"></i> Ver Historial Clínico
+                        @php
+                            $expediente = $paciente->expedientes->first();
+                        @endphp
+                        <a href="{{ route('expedientes.show', $expediente->ID_Expediente) }}" class="btn btn-info me-2">
+                            <i class="bi bi-folder2-open me-1"></i> Ver Historial Clínico
                         </a>
                         <a href="{{ route('documentos.byPaciente', $paciente->ID_Paciente) }}"
                             class="btn btn-success me-2">

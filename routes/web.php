@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\AlumnosController;
+use App\Http\Controllers\AsignacionExpedienteAlumnosController;
 use App\Http\Controllers\AsignacionPacientesAlumnosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentosPacientesController;
 use App\Http\Controllers\EstadosController;
+use App\Http\Controllers\ExpedienteController;
 use App\Http\Controllers\FotografiasPacientesController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\MaestrosController;
@@ -154,8 +156,8 @@ Route::middleware(AdminIsAuthenticated::class)->group(function () {
     });
 
     Route::get('/telefonos/getAllByPaciente/{ID_Paciente}', [TelefonosPacientesController::class, 'getTelefonosByPaciente']);
-    Route::post('/asignaciones', [AsignacionPacientesAlumnosController::class, 'store'])->name('asignaciones.store');
-    Route::delete('/asignaciones/{id}', [AsignacionPacientesAlumnosController::class, 'destroy'])->name('asignaciones.destroy');
+    Route::post('/asignaciones', [AsignacionExpedienteAlumnosController::class, 'store'])->name('asignaciones.store');
+    Route::delete('/asignaciones/{id}', [AsignacionExpedienteAlumnosController::class, 'destroy'])->name('asignaciones.destroy');
 });
 
 Route::middleware(AlumnoIsAuthenticated::class)->group(function () {
@@ -190,6 +192,7 @@ Route::middleware(IsAuthenticated::class)->group(function () {
     Route::get('/alumno/paciente/{paciente}/radiografias/download/{radiografia}', [RadiografiasPacientesController::class, 'download'])->name('radiografias.download');
     Route::get('/alumno/paciente/{paciente}/fotografias', [FotografiasPacientesController::class, 'showByPacient'])->name('fotografias.byPaciente');
     Route::get('/alumno/paciente/{paciente}/fotografias/download/{fotografia}', [FotografiasPacientesController::class, 'download'])->name('fotografias.download');
+    Route::get('/expedientes/{expediente}', [ExpedienteController::class, 'show'])->name('expedientes.show');
     Route::get('/volver', [NavigationController::class, 'back'])->name('volver');
 });
 

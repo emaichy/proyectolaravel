@@ -10,7 +10,11 @@ class Alumnos extends Model
     use HasFactory;
     protected $table = 'alumnos';
     protected $primaryKey = 'Matricula';
-    protected $fillable = ['Nombre', 'ApePaterno', 'ApeMaterno', 'Foto_Alumno', 'Firma', 'FechaNac', 'Sexo', 'Direccion', 'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais', 'TipoAlumno', 'Telefono', 'Curp', 'ID_Grupo', 'ID_Usuario', 'ID_Estado', 'ID_Municipio', 'Status'];
+    protected $fillable = [
+        'Nombre', 'ApePaterno', 'ApeMaterno', 'Foto_Alumno', 'Firma', 'FechaNac', 'Sexo', 'Direccion',
+        'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais', 'TipoAlumno', 'Telefono', 'Curp',
+        'ID_Grupo', 'ID_Usuario', 'ID_Estado', 'ID_Municipio', 'Status'
+    ];
     public $timestamps = true;
 
     public function grupo()
@@ -35,7 +39,12 @@ class Alumnos extends Model
 
     public function asignaciones()
     {
-        return $this->hasMany(AsignacionPacientesAlumnos::class, 'ID_Alumno');
+        return $this->hasMany(AsignacionExpedienteAlumno::class, 'ID_Alumno');
+    }
+
+    public function expedientes()
+    {
+        return $this->belongsToMany(Expediente::class, 'asignacion_expediente_alumno', 'ID_Alumno', 'ID_Expediente')
+            ->withTimestamps();
     }
 }
-

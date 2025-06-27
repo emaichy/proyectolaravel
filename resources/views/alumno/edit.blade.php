@@ -1,6 +1,3 @@
-<pre>
-    {{ print_r(session('nav_stack'), true) }}
-</pre>
 @extends('layouts.admin')
 
 @section('content')

@@ -144,13 +144,13 @@
                         @else
                             <ul class="list-group mb-3">
                                 @foreach ($alumno->asignaciones as $asignacion)
-                                    @if ($asignacion->paciente)
+                                    @if ($asignacion->expediente->paciente)
                                         <li class="list-group-item" id="asignacion-{{ $asignacion->ID_Asignacion }}">
-                                            <strong>{{ $asignacion->paciente->Nombre }}
-                                                {{ $asignacion->paciente->ApePaterno }}
-                                                {{ $asignacion->paciente->ApeMaterno }}</strong>
-                                            <span class="badge bg-info">ID: {{ $asignacion->paciente->ID_Paciente }}</span>
-                                            <a href="{{ route('pacientes.show', $asignacion->paciente->ID_Paciente) }}"
+                                            <strong>{{ $asignacion->expediente->paciente->Nombre }}
+                                                {{ $asignacion->expediente->paciente->ApePaterno }}
+                                                {{ $asignacion->expediente->paciente->ApeMaterno }}</strong>
+                                            <span class="badge bg-info">ID: {{ $asignacion->expediente->paciente->ID_Paciente }}</span>
+                                            <a href="{{ route('pacientes.show', $asignacion->expediente->paciente->ID_Paciente) }}"
                                                 class="btn btn-outline-secondary btn-sm float-end">
                                                 <i class="bi bi-eye"></i> Ver Paciente
                                             </a>

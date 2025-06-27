@@ -47,7 +47,7 @@ class AlumnosController extends Controller
             'usuario',
             'estado',
             'municipio',
-            'asignaciones.paciente'
+            'asignaciones.expediente.paciente'
         ])->findOrFail($id);
         if ($user->Rol === 'Maestro') {
             $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->firstOrFail();
@@ -65,8 +65,11 @@ class AlumnosController extends Controller
             ->orWhere('ID_Grupo', $alumno->ID_Grupo)
             ->with('semestre')
             ->get();
-        $asignados = $alumno->asignaciones->pluck('ID_Paciente');
-        $pacientesDisponibles = Pacientes::whereNotIn('ID_Paciente', $asignados)->get();
+        $expedientesAsignados = $alumno->asignaciones->pluck('ID_Expediente');
+        $pacientesDisponibles = Pacientes::whereHas('expedientes', function ($q) use ($expedientesAsignados) {
+            $q->whereNotIn('ID_Expediente', $expedientesAsignados);
+        })
+            ->get();
         return view('alumno.show', compact('alumno', 'gruposDisponibles', 'pacientesDisponibles', 'layout'));
     }
 

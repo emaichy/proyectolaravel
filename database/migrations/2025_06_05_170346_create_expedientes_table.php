@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('expedientes', function (Blueprint $table) {
             $table->id('ID_Expediente');
-            $table->unsignedBigInteger('ID_Asignacion');
+            $table->unsignedBigInteger('ID_Paciente');
             $table->enum('TipoExpediente', ['Adulto', 'Pediatrico']);
             $table->integer('Status')->default(1);
             $table->timestamps();
-            $table->foreign('ID_Asignacion')->references('ID_Asignacion')->on('asignaciones')->onDelete('cascade');
+            $table->foreign('ID_Paciente')->references('ID_Paciente')->on('pacientes')->onDelete('cascade');
         });
     }
 

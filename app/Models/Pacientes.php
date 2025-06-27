@@ -12,15 +12,27 @@ class Pacientes extends Model
     protected $primaryKey = 'ID_Paciente';
 
     protected $fillable = [
-        'Nombre', 'ApePaterno', 'ApeMaterno', 'FechaNac', 'Sexo', 'Direccion',
-        'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais',
-        'TipoPaciente', 'Foto_Paciente', 'ID_Estado', 'ID_Municipio', 'Status'
+        'Nombre',
+        'ApePaterno',
+        'ApeMaterno',
+        'FechaNac',
+        'Sexo',
+        'Direccion',
+        'NumeroExterior',
+        'NumeroInterior',
+        'CodigoPostal',
+        'Pais',
+        'TipoPaciente',
+        'Foto_Paciente',
+        'ID_Estado',
+        'ID_Municipio',
+        'Status'
     ];
     public $timestamps = true;
 
-    public function asignacion()
+    public function expedientes()
     {
-        return $this->hasOne(AsignacionPacientesAlumnos::class, 'ID_Paciente');
+        return $this->hasMany(Expediente::class, 'ID_Paciente');
     }
 
     public function estado()
@@ -33,4 +45,3 @@ class Pacientes extends Model
         return $this->belongsTo(Municipios::class, 'ID_Municipio');
     }
 }
-

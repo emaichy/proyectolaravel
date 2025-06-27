@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumnos;
+use App\Models\AsignacionExpedienteAlumno;
 use App\Models\AsignacionPacientesAlumnos;
 use App\Models\DocumentosPacientes;
 use App\Models\Estados;
+use App\Models\Expediente;
 use App\Models\FotografiasPacientes;
+use App\Models\Maestros;
 use App\Models\Pacientes;
 use App\Models\RadiografiasPacientes;
 use Illuminate\Http\Request;
@@ -38,12 +41,13 @@ class PacientesController extends Controller
 
         switch ($user->Rol) {
             case 'Maestro':
-                $maestro = \App\Models\Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
+                $maestro = Maestros::where('ID_Usuario', $user->ID_Usuario)->first();
                 if ($maestro) {
-                    $hasPaciente = AsignacionPacientesAlumnos::whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
-                        $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
-                    })
-                        ->where('ID_Paciente', $pacienteId)
+                    $expedientes = Expediente::where('ID_Paciente', $pacienteId)->pluck('ID_Expediente');
+                    $hasPaciente = AsignacionExpedienteAlumno::whereIn('ID_Expediente', $expedientes)
+                        ->whereHas('alumno.grupo.maestros', function ($q) use ($maestro) {
+                            $q->where('maestros.ID_Maestro', $maestro->ID_Maestro);
+                        })
                         ->exists();
                     if ($hasPaciente) $allow = true;
                 }
@@ -52,8 +56,9 @@ class PacientesController extends Controller
             case 'Alumno':
                 $alumno = Alumnos::where('ID_Usuario', $user->ID_Usuario)->first();
                 if ($alumno) {
-                    $hasPaciente = AsignacionPacientesAlumnos::where('ID_Alumno', $alumno->Matricula)
-                        ->where('ID_Paciente', $pacienteId)
+                    $expedientes = Expediente::where('ID_Paciente', $pacienteId)->pluck('ID_Expediente');
+                    $hasPaciente = AsignacionExpedienteAlumno::whereIn('ID_Expediente', $expedientes)
+                        ->where('ID_Alumno', $alumno->Matricula)
                         ->exists();
                     if ($hasPaciente) $allow = true;
                 }
@@ -215,7 +220,8 @@ class PacientesController extends Controller
         DocumentosPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         FotografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
         RadiografiasPacientes::where('ID_Paciente', $paciente->ID_Paciente)->delete();
-        AsignacionPacientesAlumnos::where('ID_Paciente', $paciente->ID_Paciente)->delete();
+        $expedientes = \App\Models\Expediente::where('ID_Paciente', $paciente->ID_Paciente)->pluck('ID_Expediente');
+        AsignacionExpedienteAlumno::whereIn('ID_Expediente', $expedientes)->delete();
         if (request()->expectsJson()) {
             return response()->json(['success' => true]);
         }
@@ -224,11 +230,11 @@ class PacientesController extends Controller
 
     public function list()
     {
-        $asignados = AsignacionPacientesAlumnos::pluck('ID_Paciente');
-        $pacientes = Pacientes::whereNotIn('ID_Paciente', $asignados)
+        $con_expediente = \App\Models\Expediente::pluck('ID_Paciente');
+        $pacientes = \App\Models\Pacientes::whereNotIn('ID_Paciente', $con_expediente)
+            ->where('Status', 1)
             ->select('ID_Paciente', 'Nombre', 'ApePaterno', 'ApeMaterno')
             ->orderBy('Nombre', 'asc')
-            ->where('Status', 1)
             ->get();
         return response()->json($pacientes);
     }

@@ -10,16 +10,22 @@ class Expediente extends Model
     use HasFactory;
     protected $table = 'expedientes';
     protected $primaryKey = 'ID_Expediente';
-    protected $fillable = ['ID_Asignacion', 'TipoExpediente', 'Status'];
+    protected $fillable = ['ID_Paciente', 'TipoExpediente', 'Status'];
     public $timestamps = true;
 
     public function anexos()
     {
         return $this->hasMany(AnexosExpediente::class, 'ID_Expediente', 'ID_Expediente');
     }
-    
-    public function asignacion()
+
+    public function paciente()
     {
-        return $this->belongsTo(AsignacionPacientesAlumnos::class, 'ID_Asignacion', 'ID_Asignacion');
+        return $this->belongsTo(Pacientes::class, 'ID_Paciente', 'ID_Paciente');
+    }
+
+    public function alumnos()
+    {
+        return $this->belongsToMany(Alumnos::class, 'asignacion_expediente_alumno', 'ID_Expediente', 'ID_Alumno')
+            ->withTimestamps();
     }
 }
