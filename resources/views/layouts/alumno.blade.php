@@ -95,8 +95,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('pacientes*') ? 'active' : '' }}"
-                            href="{{ url('/alumno/pacientes') }}">
+                        <a class="nav-link {{ request()->is('alumno/pacientes*') ? 'active' : '' }}"
+                            href="{{ url('/alumno/pacientes/' . $alumnoSesion->Matricula) }}">
                             <i class="fa-solid fa-user-injured"></i> Pacientes
                         </a>
                     </li>
@@ -124,12 +124,19 @@
                             <i class="fa-solid fa-ellipsis-h"></i> Más
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="otrasOpcionesDropdown">
-                            <li>
-                                <a class="dropdown-item"
-                                    href="{{ route('alumno.perfil', auth()->user()->alumno->Matricula) }}">
+                            @php
+                                $alumno = auth()->user()->alumno ?? null;
+                            @endphp
+
+                            @if ($alumno)
+                                <a class="dropdown-item" href="{{ route('alumno.perfil', $alumno->Matricula) }}">
                                     <i class="fa-solid fa-user"></i> Mi Perfil
                                 </a>
-                            </li>
+                            @else
+                                <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">
+                                    <i class="fa-solid fa-user"></i> Mi Perfil (no disponible)
+                                </a>
+                            @endif
                             @if (!auth()->user()->alumno->Firma)
                                 <li>
                                     <button type="button" class="dropdown-item" id="btn-agregar-firma">
@@ -176,7 +183,8 @@
                                 aria-label="Cerrar"></button>
                         </div>
                         <p class="text-center text-secondary mt-3">
-                            <i class="fa-solid fa-info-circle"></i> Por favor, firme en el área designada. Después de esto no podrá cambiarla.
+                            <i class="fa-solid fa-info-circle"></i> Por favor, firme en el área designada. Después de
+                            esto no podrá cambiarla.
                         </p>
                         <div class="modal-body">
                             <div class="mb-3 text-center">

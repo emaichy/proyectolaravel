@@ -238,4 +238,25 @@ class PacientesController extends Controller
             ->get();
         return response()->json($pacientes);
     }
+
+    public function pacientesByAlumno($alumnoId, Request $request)
+    {
+        $user = auth()->user();
+        $current = $request->fullUrl();
+        session()->put('nav_stack', [$current]);
+        if ($user->Rol === 'Alumno') {
+            if (!$user->alumno || $user->alumno->Matricula != $alumnoId) {
+                return redirect()->route('alumno.home')
+                    ->with('error', 'No tienes permiso para ver los pacientes de este alumno.');
+            }
+        }
+        $alumno = Alumnos::findOrFail($alumnoId);
+        $expedienteIds = $alumno->asignaciones()->pluck('ID_Expediente')->toArray();
+        $pacienteIds = Expediente::whereIn('ID_Expediente', $expedienteIds)
+            ->pluck('ID_Paciente')
+            ->unique()
+            ->toArray();
+        $pacientes = Pacientes::whereIn('ID_Paciente', $pacienteIds)->get();
+        return view('alumno.pacientes', compact('pacientes'));
+    }
 }

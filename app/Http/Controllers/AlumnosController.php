@@ -345,7 +345,7 @@ class AlumnosController extends Controller
 
     public function guardarFirma(Request $request, $id)
     {
-        $alumno = \App\Models\Alumnos::findOrFail($id);
+        $alumno = Alumnos::findOrFail($id);
         if (auth()->user()->id !== $alumno->usuario->id) {
             return response()->json(['error' => 'No autorizado.'], 403);
         }
@@ -361,7 +361,7 @@ class AlumnosController extends Controller
             $data = substr($firmaBase64, strpos($firmaBase64, ',') + 1);
             $data = base64_decode($data);
             $nombreCompleto = $alumno->Nombre . $alumno->ApePaterno . $alumno->ApeMaterno;
-            $carpetaAlumno = \Illuminate\Support\Str::slug($nombreCompleto);
+            $carpetaAlumno = Str::slug($nombreCompleto);
             $folderFirma = public_path("alumnos/{$carpetaAlumno}/firma");
             if (!file_exists($folderFirma)) mkdir($folderFirma, 0777, true);
             $nombreFirma = 'firma_' . time() . '.png';
