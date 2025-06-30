@@ -44,4 +44,9 @@ class Pacientes extends Model
     {
         return $this->belongsTo(Municipios::class, 'ID_Municipio');
     }
+
+    public function citas()
+    {
+        return $this->hasMany(Cita::class, 'ID_Paciente', 'ID_Paciente');
+    }
 }

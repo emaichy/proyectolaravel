@@ -11,9 +11,26 @@ class Alumnos extends Model
     protected $table = 'alumnos';
     protected $primaryKey = 'Matricula';
     protected $fillable = [
-        'Nombre', 'ApePaterno', 'ApeMaterno', 'Foto_Alumno', 'Firma', 'FechaNac', 'Sexo', 'Direccion',
-        'NumeroExterior', 'NumeroInterior', 'CodigoPostal', 'Pais', 'TipoAlumno', 'Telefono', 'Curp',
-        'ID_Grupo', 'ID_Usuario', 'ID_Estado', 'ID_Municipio', 'Status'
+        'Nombre',
+        'ApePaterno',
+        'ApeMaterno',
+        'Foto_Alumno',
+        'Firma',
+        'FechaNac',
+        'Sexo',
+        'Direccion',
+        'NumeroExterior',
+        'NumeroInterior',
+        'CodigoPostal',
+        'Pais',
+        'TipoAlumno',
+        'Telefono',
+        'Curp',
+        'ID_Grupo',
+        'ID_Usuario',
+        'ID_Estado',
+        'ID_Municipio',
+        'Status'
     ];
     public $timestamps = true;
 
@@ -46,5 +63,10 @@ class Alumnos extends Model
     {
         return $this->belongsToMany(Expediente::class, 'asignacion_expediente_alumno', 'ID_Alumno', 'ID_Expediente')
             ->withTimestamps();
+    }
+
+    public function citas()
+    {
+        return $this->hasMany(Cita::class, 'ID_Alumno', 'Matricula');
     }
 }
