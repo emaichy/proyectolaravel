@@ -91,6 +91,8 @@
                         <div>
                             <a href="{{ route('alumnos.show', $alumno->Matricula) }}"
                                 class="btn btn-sm btn-outline-primary me-2">Ver</a>
+                                <a href="{{ route('maestro.documentos.index', $alumno->Matricula) }}"
+                            class="btn btn-sm btn-outline-secondary">Documentos</a>
                         </div>
                     </li>
                 @endforeach

@@ -36,7 +36,7 @@
                                     </li>
                                 @endif
                             </ul>
-                            <a href="{{--{{ route('alumno.documentoss.index', ['paciente_id' => $paciente->ID_Paciente]) }}--}}"
+                            <a href="{{ route('alumno.documentoss.index', ['paciente_id' => $paciente->ID_Paciente]) }}"
                                 class="btn btn-outline-primary w-100 fw-bold mb-3">
                                 <i class="fa-solid fa-folder-open me-1"></i>
                                 Ver/Crear Documentos de Expediente

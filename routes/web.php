@@ -208,3 +208,42 @@ Route::middleware(IsAuthenticated::class)->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// CREACION Y VIZUALIZACION DE DOCUMENTOS  PARA EL EXPEDIENTE
+use App\Http\Controllers\DocumentosController;
+use App\Http\Controllers\NotasEvolucionController;
+use App\Http\Controllers\ConsentimientoController;
+//📁 Rutas de Documentos Generales
+Route::get('/documentoss', [DocumentosController::class, 'index'])->name('documentoss.index');
+    Route::get('/maestro/documentoss', [NotasEvolucionController::class, 'index'])
+        ->name('documentoss.index');
+// RUTAS PARA ALUMNOS
+Route::middleware(['auth', 'alumno'])->group(function () {
+    // Buscar notas
+    Route::get('/alumno/documentoss', [DocumentosController::class, 'indexAlumno'])
+        ->name('alumno.documentoss.index');
+    Route::get('/notas-evolucion/buscar', [NotasEvolucionController::class, 'buscar'])
+        ->name('notasevolucion.buscar');
+    Route::get('/alumno/pacientes', [AlumnosController::class, 'misPacientes'])->name('alumno.pacientes.index');
+    // Notas de evolución (CRUD)
+    Route::resource('notasevolucion', NotasEvolucionController::class);
+    // Consentimientos (CRUD)
+    Route::resource('consentimiento', ConsentimientoController::class);
+});
+// RUTAS PARA MAESTROS
+Route::middleware(['auth', 'maestro'])->group(function () {
+// Ver Index de todos los Documentos
+Route::get('/maestro/documentos/{matricula}', [DocumentosController::class, 'index'])
+    ->name('maestro.documentos.index');
+// NOTAS DE EVOLUCIÓN
+Route::get('/maestro/notasevolucion', [NotasEvolucionController::class, 'index'])->name('maestro.notasevolucion.index');
+Route::get('/maestro/notasevolucion/{notasevolucion}/edit', [NotasEvolucionController::class, 'edit'])->name('maestro.notasevolucion.edit');
+Route::put('/maestro/notasevolucion/{notasevolucion}', [NotasEvolucionController::class, 'update'])->name('maestro.notasevolucion.update');
+Route::get('/maestro/alumno/{matricula}/notasevolucion', [NotasEvolucionController::class, 'verNotasAlumno'])
+->name('maestro.notasevolucion.alumno');
+// CONSENTIMIENTOS
+Route::get('/maestro/consentimiento', [ConsentimientoController::class, 'index'])->name('maestro.consentimiento.index');
+Route::get('/maestro/consentimiento/{consentimiento}/edit', [ConsentimientoController::class, 'edit'])->name('maestro.consentimiento.edit');
+Route::put('/maestro/consentimiento/{consentimiento}', [ConsentimientoController::class, 'update'])->name('maestro.consentimiento.update');
+Route::get('/maestro/alumno/{matricula}/consentimientos', [ConsentimientoController::class, 'verConsentimientosAlumno'])->name('maestro.consentimiento.alumno');
+
+});
